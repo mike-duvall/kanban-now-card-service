@@ -16,6 +16,8 @@ run {
     args 'server', 'hello-world.yml'
 }
 
+archivesBaseName = 'kanban-now-card-service'
+
 jar {
      from(configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }) {
          exclude "META-INF/*.SF"
