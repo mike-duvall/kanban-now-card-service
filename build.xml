@@ -7,9 +7,9 @@
         <exec executable="java" osfamily="unix" spawn="true" >
             <env key="JAVA_OPTS" value="${javaOpts}"/>
             <arg value="-jar"/>
-            <arg value="/home/mduvall/IntelliJ-Projects/kanban-now-card-service/build/libs/kanban-now-card-service.jar"/>
+            <arg value="build/libs/kanban-now-card-service.jar"/>
             <arg value="server"/>
-            <arg value="/home/mduvall/IntelliJ-Projects/kanban-now-card-service/hello-world.yml"/>
+            <arg value="hello-world.yml"/>
         </exec>
 	</target>
 
