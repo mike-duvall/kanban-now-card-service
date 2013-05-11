@@ -1,2 +1,9 @@
+
 template: Hello, %s!
 defaultName: Stranger
+
+
+http:
+   port: 9595
+   adminPort: 9596
+
