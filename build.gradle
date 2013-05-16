@@ -5,9 +5,9 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.yammer.dropwizard', name: 'dropwizard-core', version: '0.5.1'
+    compile group: 'com.yammer.dropwizard', name: 'dropwizard-core', version: '0.6.2'
     testCompile 'junit:junit:4.+'
-    testCompile 'com.yammer.dropwizard:dropwizard-client:0.5.1'
+    testCompile 'com.yammer.dropwizard:dropwizard-client:0.6.2'
 }
 
 apply plugin: 'application'
