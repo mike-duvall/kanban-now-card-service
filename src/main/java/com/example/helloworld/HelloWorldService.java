@@ -16,6 +16,8 @@ public class HelloWorldService extends Service<HelloWorldConfiguration> {
     @Override
     public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
         bootstrap.setName("hello-world");
+        bootstrap.addCommand(embeddedServerCommand);
+
 
     }
 
@@ -26,6 +28,22 @@ public class HelloWorldService extends Service<HelloWorldConfiguration> {
         environment.addResource(new HelloWorldResource(template, defaultName));
         environment.addHealthCheck(new TemplateHealthCheck(template));
 
+    }
+
+
+    private final EmbeddedServerCommand<HelloWorldConfiguration> embeddedServerCommand =
+            new EmbeddedServerCommand<HelloWorldConfiguration>(this);
+
+    public void startEmbeddedServer(String configFileName) throws Exception {
+        run(new String[] {"embedded-server", configFileName});
+    }
+
+    public void stopEmbeddedServer() throws Exception {
+        embeddedServerCommand.stop();
+    }
+
+    public boolean isEmbeddedServerRunning() {
+        return embeddedServerCommand.isRunning();
     }
 
 

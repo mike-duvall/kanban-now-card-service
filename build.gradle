@@ -5,7 +5,9 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.yammer.dropwizard', name: 'dropwizard-core', version: '0.6.2'
+    compile 'com.yammer.dropwizard:dropwizard-core:0.6.2'
+
+    testCompile 'org.kohsuke.stapler:json-lib:2.1-rev6'
     testCompile 'junit:junit:4.+'
     testCompile 'com.yammer.dropwizard:dropwizard-client:0.6.2'
 }
