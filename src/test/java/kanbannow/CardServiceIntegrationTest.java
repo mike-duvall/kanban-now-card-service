@@ -32,7 +32,7 @@ public class CardServiceIntegrationTest {
         HttpClient httpclient = new DefaultHttpClient();
 
         try {
-            HttpGet httpget = new HttpGet("http://localhost:9595/hello-world");
+            HttpGet httpget = new HttpGet("http://localhost:9595/card");
 
             System.out.println("executing request " + httpget.getURI());
 
@@ -52,9 +52,6 @@ public class CardServiceIntegrationTest {
 
 
             Thread.sleep(5000);
-        }
-        catch (Exception e) {
-            throw e;
         }
         finally {
             service.stopEmbeddedServer();
