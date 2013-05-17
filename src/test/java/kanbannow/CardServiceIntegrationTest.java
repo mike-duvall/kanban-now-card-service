@@ -49,7 +49,7 @@ public class CardServiceIntegrationTest {
             int statusCode = statusLine.getStatusCode();
 
 
-            assertThat(statusCode, equalTo(201));
+            assertThat(statusCode, equalTo(200));
 
 
             Thread.sleep(5000);
