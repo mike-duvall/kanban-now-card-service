@@ -7,14 +7,14 @@ import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 
-public class HelloWorldService extends Service<HelloWorldConfiguration> {
+public class CardService extends Service<CardServiceConfiguration> {
     public static void main(String[] args) throws Exception {
-        new HelloWorldService().run(args);
+        new CardService().run(args);
     }
 
 
     @Override
-    public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
+    public void initialize(Bootstrap<CardServiceConfiguration> bootstrap) {
         bootstrap.setName("hello-world");
         bootstrap.addCommand(embeddedServerCommand);
 
@@ -22,7 +22,7 @@ public class HelloWorldService extends Service<HelloWorldConfiguration> {
     }
 
     @Override
-    public void run(HelloWorldConfiguration configuration, Environment environment) throws Exception {
+    public void run(CardServiceConfiguration configuration, Environment environment) throws Exception {
         final String template = configuration.getTemplate();
         final String defaultName = configuration.getDefaultName();
         environment.addResource(new HelloWorldResource(template, defaultName));
@@ -31,8 +31,8 @@ public class HelloWorldService extends Service<HelloWorldConfiguration> {
     }
 
 
-    private final EmbeddedServerCommand<HelloWorldConfiguration> embeddedServerCommand =
-            new EmbeddedServerCommand<HelloWorldConfiguration>(this);
+    private final EmbeddedServerCommand<CardServiceConfiguration> embeddedServerCommand =
+            new EmbeddedServerCommand<CardServiceConfiguration>(this);
 
     public void startEmbeddedServer(String configFileName) throws Exception {
         run(new String[] {"embedded-server", configFileName});

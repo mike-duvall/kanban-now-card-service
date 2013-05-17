@@ -21,7 +21,7 @@ public class CardServiceIntegrationTest {
     @Test
     public void test() throws Exception {
 
-        HelloWorldService service = new HelloWorldService();
+        CardService service = new CardService();
 
         service.startEmbeddedServer("hello-world.yml");
         if (!service.isEmbeddedServerRunning()) {
