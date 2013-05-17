@@ -1,7 +1,7 @@
 package kanbannow;
 
 import kanbannow.health.TemplateHealthCheck;
-import kanbannow.resources.HelloWorldResource;
+import kanbannow.resources.CardResource;
 
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
@@ -25,7 +25,7 @@ public class CardService extends Service<CardServiceConfiguration> {
     public void run(CardServiceConfiguration configuration, Environment environment) throws Exception {
         final String template = configuration.getTemplate();
         final String defaultName = configuration.getDefaultName();
-        environment.addResource(new HelloWorldResource(template, defaultName));
+        environment.addResource(new CardResource(template, defaultName));
         environment.addHealthCheck(new TemplateHealthCheck(template));
 
     }

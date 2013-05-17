@@ -13,12 +13,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/card")
 @Produces(MediaType.APPLICATION_JSON)
-public class HelloWorldResource {
+public class CardResource {
     private final String template;
     private final String defaultName;
     private final AtomicLong counter;
 
-    public HelloWorldResource(String template, String defaultName) {
+    public CardResource(String template, String defaultName) {
         this.template = template;
         this.defaultName = defaultName;
         this.counter = new AtomicLong();
