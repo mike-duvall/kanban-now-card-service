@@ -14,7 +14,7 @@ dependencies {
 
 apply plugin: 'application'
 
-mainClassName = 'com.example.helloworld.HelloWorldService'
+mainClassName = 'kanbannow.HelloWorldService'
 
 run {
     args 'server', 'hello-world.yml'
@@ -28,7 +28,7 @@ jar {
          exclude "META-INF/*.DSA"
          exclude "META-INF/*.RSA"
      }
-    manifest { attributes 'Main-Class': 'com.example.helloworld.HelloWorldService' }
+    manifest { attributes 'Main-Class': 'kanbannow.HelloWorldService' }
  }
 
 

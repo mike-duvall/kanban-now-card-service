@@ -1,6 +1,6 @@
-package com.example.helloworld.resources;
+package kanbannow.resources;
 
-import com.example.helloworld.core.Saying;
+import kanbannow.core.Saying;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 

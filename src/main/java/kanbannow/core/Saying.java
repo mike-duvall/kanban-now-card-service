@@ -1,4 +1,4 @@
-package com.example.helloworld.core;
+package kanbannow.core;
 
 public class Saying {
     private final long id;

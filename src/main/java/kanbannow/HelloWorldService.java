@@ -1,7 +1,7 @@
-package com.example.helloworld;
+package kanbannow;
 
-import com.example.helloworld.health.TemplateHealthCheck;
-import com.example.helloworld.resources.HelloWorldResource;
+import kanbannow.health.TemplateHealthCheck;
+import kanbannow.resources.HelloWorldResource;
 
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;

@@ -1,4 +1,4 @@
-package com.example.helloworld;
+package kanbannow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yammer.dropwizard.config.Configuration;

@@ -1,4 +1,4 @@
-package com.example.helloworld;
+package kanbannow;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
