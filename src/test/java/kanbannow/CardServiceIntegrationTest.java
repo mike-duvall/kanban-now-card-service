@@ -32,7 +32,7 @@ public class CardServiceIntegrationTest {
         HttpClient httpclient = new DefaultHttpClient();
 
         try {
-            HttpGet httpget = new HttpGet("http://localhost:9595/card");
+            HttpGet httpget = new HttpGet("http://localhost:9595/cards");
 
             System.out.println("executing request " + httpget.getURI());
 
