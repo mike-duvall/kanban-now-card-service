@@ -4,14 +4,11 @@ import kanbannow.core.Saying;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Path("/cards")
+@Path("/cards/board")
 @Produces(MediaType.APPLICATION_JSON)
 public class CardResource {
     private final String template;
@@ -26,7 +23,8 @@ public class CardResource {
 
     @GET
     @Timed
-    public Saying sayHello(@QueryParam("name") Optional<String> name) {
+    @Path("{id}")
+    public Saying sayHello(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) {
         return new Saying(counter.incrementAndGet(),
                           String.format(template, name.or(defaultName)));
     }

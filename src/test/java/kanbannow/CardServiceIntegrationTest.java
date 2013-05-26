@@ -8,8 +8,17 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 
 import org.junit.Test;
+import org.skife.jdbi.v2.DBI;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.util.LongMapper;
 
 
+import javax.sql.DataSource;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -29,26 +38,70 @@ public class CardServiceIntegrationTest {
         }
 
 
+        Class.forName("oracle.jdbc.driver.OracleDriver");
+
+        DBI dbi = new DBI("jdbc:oracle:thin:@192.168.1.7:1521/ORA11DEV", "kanban_now", "password");
+
+        Handle h = dbi.open();
+        h.execute("delete from card");
+        h.execute("delete from board");
+        h.execute("delete from authorities");
+        h.execute("delete from users");
+
+
+
+        String username = "ted";
+        h.execute("insert into users (username, password) values ( ?, ?)",  username, "password" );
+        Long userId = h.createQuery("select id from users where username = '" + username + "'" )
+                .map(LongMapper.FIRST)
+                .first();
+
+
+
+        String boardName = "Test board";
+        h.execute("insert into board ( name, user_id) values (?, ?)" , boardName, userId );
+        Long boardId = h.createQuery("select id from board where name = '" + boardName + "'" )
+                .map(LongMapper.FIRST)
+                .first();
+
+
+
+        Long id = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
+                .map(LongMapper.FIRST)
+                .first();
+
+        String cardText = "Test card text";
+        long cardLocation = 1;
+        h.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", id, cardText, cardLocation, boardId);
+
+
+        h.close();
+
+
         HttpClient httpclient = new DefaultHttpClient();
 
         try {
-            HttpGet httpget = new HttpGet("http://localhost:9595/cards");
+
+//            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
+
+            String uri = "http://localhost:9595/cards/board/" + boardId;
+            HttpGet httpget = new HttpGet(uri);
 
             System.out.println("executing request " + httpget.getURI());
 
-            // Create a response handler
-//            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-//            String responseBody = httpclient.execute(httpget, responseHandler);
             HttpResponse httpResponse = httpclient.execute(httpget);
-//            System.out.println("----------------------------------------");
-//            System.out.println(responseBody);
-//            System.out.println("----------------------------------------");
-
             StatusLine statusLine = httpResponse.getStatusLine();
             int statusCode = statusLine.getStatusCode();
 
 
             assertThat(statusCode, equalTo(200));
+
+            InputStream inputStream = httpResponse.getEntity().getContent();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String result = bufferedReader.readLine();
+
+
 
 
             Thread.sleep(5000);
