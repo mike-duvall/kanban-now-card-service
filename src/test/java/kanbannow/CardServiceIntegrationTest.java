@@ -13,12 +13,8 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.LongMapper;
 
 
-import javax.sql.DataSource;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -38,9 +34,20 @@ public class CardServiceIntegrationTest {
         }
 
 
-        Class.forName("oracle.jdbc.driver.OracleDriver");
+        Properties props = new Properties();
 
-        DBI dbi = new DBI("jdbc:oracle:thin:@192.168.1.7:1521/ORA11DEV", "kanban_now", "password");
+        InputStream is = ClassLoader.getSystemResourceAsStream("database.properties");
+        props.load(is);
+
+        String databaseDriverClassName = (String) props.get("dataSource.driverClassName");
+
+        Class.forName(databaseDriverClassName);
+
+        String dataSourceUrl = (String) props.get("dataSource.url" );
+        String dataSourceUsername = (String) props.get("dataSource.username");
+        String dataSourcePassword = (String) props.get("dataSource.password");
+
+        DBI dbi = new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
 
         Handle h = dbi.open();
         h.execute("delete from card");
