@@ -3,7 +3,7 @@ An email I sent proposing an SOA Vision at work:
 
 
 
-----------------
+------------------
 As most of you know I've been spending a lot of time lately studying how other companies are managing their SOAs.  Netflix and Amazon in particular.  See these links:
 
 (Jeff Bezo's Big Mandate) http://www.infoworld.com/t/service-oriented-architecture/ex-amazonian-urges-google-sample-amazons-secret-sauce-175906
