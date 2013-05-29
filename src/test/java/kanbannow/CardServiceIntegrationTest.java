@@ -1,5 +1,7 @@
 package kanbannow;
 
+import com.yammer.dropwizard.config.ConfigurationFactory;
+import com.yammer.dropwizard.validation.Validator;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -34,10 +36,17 @@ public class CardServiceIntegrationTest {
         }
 
 
+//        ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
+//        File configFile = new File("hello-world.yml");
+//        CardServiceConfiguration configuration = configurationFactory.build(configFile);
+
+
+
         Properties props = new Properties();
 
-        InputStream is = ClassLoader.getSystemResourceAsStream("database.properties");
-        props.load(is);
+        File dbPropertiesFile = new File("../properties/database.properties");
+        FileInputStream fileInputStream = new FileInputStream(dbPropertiesFile);
+        props.load(fileInputStream);
 
         String databaseDriverClassName = (String) props.get("dataSource.driverClassName");
 
