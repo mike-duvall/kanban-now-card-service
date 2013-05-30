@@ -4,9 +4,7 @@ Basic service for handling Kanban cards.
 
 This is my first foray into building a microservice.
 
-The current status is that it's just a copy of the sample dropwizard app.
-
-Will be adding more Kanban card functionality over time.
+The current implementation is almost non-existent.  Will be rapidly adding more functionality over time.
 
 
 ## Notes
