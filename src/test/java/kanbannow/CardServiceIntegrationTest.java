@@ -18,8 +18,8 @@ import org.skife.jdbi.v2.util.LongMapper;
 import java.io.*;
 import java.util.Properties;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class CardServiceIntegrationTest {
 
@@ -110,12 +110,16 @@ public class CardServiceIntegrationTest {
             int statusCode = statusLine.getStatusCode();
 
 
-            assertThat(statusCode, equalTo(200));
+
+            assertThat(statusCode).isEqualTo(200);
 
             InputStream inputStream = httpResponse.getEntity().getContent();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String result = bufferedReader.readLine();
+
+            assertThat(result).isEqualTo("{\"id\":" + id + "}");
+
 
 
 
