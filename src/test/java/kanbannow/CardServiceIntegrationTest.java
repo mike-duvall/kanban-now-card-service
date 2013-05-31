@@ -24,31 +24,33 @@ import static org.fest.assertions.Assertions.assertThat;
 public class CardServiceIntegrationTest {
 
 
+    public static final String PROPERTIES_PATH = "../properties/";
 
     @Test
     public void test() throws Exception {
 
         CardService service = new CardService();
 
-        service.startEmbeddedServer("hello-world.yml");
+        service.startEmbeddedServer(PROPERTIES_PATH + "card-service.yml");
         if (!service.isEmbeddedServerRunning()) {
             throw new Exception("Service ended immediately after starting.");
         }
 
 
-//        ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
-//        File configFile = new File("hello-world.yml");
-//        CardServiceConfiguration configuration = configurationFactory.build(configFile);
+        ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
+        File configFile = new File(PROPERTIES_PATH + "card-service.yml");
+        CardServiceConfiguration configuration = configurationFactory.build(configFile);
 
-
+        int port  = configuration.getHttpConfiguration().getPort();
 
         Properties props = new Properties();
 
-        File dbPropertiesFile = new File("../properties/database.properties");
+        File dbPropertiesFile = new File(PROPERTIES_PATH + "database.properties");
         FileInputStream fileInputStream = new FileInputStream(dbPropertiesFile);
         props.load(fileInputStream);
 
         String databaseDriverClassName = (String) props.get("dataSource.driverClassName");
+
 
         Class.forName(databaseDriverClassName);
 
@@ -100,7 +102,7 @@ public class CardServiceIntegrationTest {
 
 //            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
 
-            String uri = "http://localhost:9595/cards/board/" + boardId;
+            String uri = "http://localhost:" + port + "/cards/board/" + boardId;
             HttpGet httpget = new HttpGet(uri);
 
             System.out.println("executing request " + httpget.getURI());

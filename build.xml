@@ -4,12 +4,12 @@
     </target>
 
 	<target name="runSpawned" >
-        <exec executable="java" osfamily="unix" spawn="true" >
+        <exec executable="java" osfamily="unix" spawn="false" >
             <env key="JAVA_OPTS" value="${javaOpts}"/>
             <arg value="-jar"/>
             <arg value="build/libs/kanban-now-card-service.jar"/>
             <arg value="server"/>
-            <arg value="hello-world.yml"/>
+            <arg value="../properties/card-service.yml"/>
         </exec>
 	</target>
 
