@@ -10,6 +10,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
@@ -27,21 +28,17 @@ public class CardServiceIntegrationTest {
 
 
     public static final String PROPERTIES_PATH = "../properties/";
+    private Handle h;
+    private DBI dbi;
+
 
     @Rule
     public DropwizardServiceRule<CardServiceConfiguration> serviceRule = new DropwizardServiceRule<CardServiceConfiguration>(CardService.class, PROPERTIES_PATH + "card-service.yml" );
 
-    @Test
-    public void test() throws Exception {
 
-        CardService service = new CardService();
 
-        ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
-        File configFile = new File(PROPERTIES_PATH + "card-service.yml");
-        CardServiceConfiguration configuration = configurationFactory.build(configFile);
-
-        int port  = configuration.getHttpConfiguration().getPort();
-
+    @Before
+    public void before() throws Exception {
         Properties props = new Properties();
 
         File dbPropertiesFile = new File(PROPERTIES_PATH + "database.properties");
@@ -57,9 +54,11 @@ public class CardServiceIntegrationTest {
         String dataSourceUsername = (String) props.get("dataSource.username");
         String dataSourcePassword = (String) props.get("dataSource.password");
 
-        DBI dbi = new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
+        dbi = new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
 
-        Handle h = dbi.open();
+        h = dbi.open();
+
+
         h.execute("delete from card");
         h.execute("delete from board");
         h.execute("delete from authorities");
@@ -67,17 +66,23 @@ public class CardServiceIntegrationTest {
 
 
 
-        String username = "ted";
-        h.execute("insert into users (username, password) values ( ?, ?)",  username, "password" );
-        Long userId = h.createQuery("select id from users where username = '" + username + "'" )
-                .map(LongMapper.FIRST)
-                .first();
+    }
 
 
+
+    @Test
+    public void test() throws Exception {
+
+        ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
+        File configFile = new File(PROPERTIES_PATH + "card-service.yml");
+        CardServiceConfiguration configuration = configurationFactory.build(configFile);
+        int port  = configuration.getHttpConfiguration().getPort();
+
+        Long userId = createUser();
 
         String boardName = "Test board";
-        h.execute("insert into board ( name, user_id) values (?, ?)" , boardName, userId );
-        Long boardId = h.createQuery("select id from board where name = '" + boardName + "'" )
+        h.execute("insert into board ( name, user_id) values (?, ?)", boardName, userId);
+        Long boardId = h.createQuery("select id from board where name = '" + boardName + "'")
                 .map(LongMapper.FIRST)
                 .first();
 
@@ -121,6 +126,16 @@ public class CardServiceIntegrationTest {
 
     }
 
+    private Long createUser() {
+        String username = "ted";
+        h.execute("insert into users (username, password) values ( ?, ?)", username, "password");
+        Long userId = h.createQuery("select id from users where username = '" + username + "'" )
+                .map(LongMapper.FIRST)
+                .first();
+
+        return userId;
+
+    }
 
 
 }
