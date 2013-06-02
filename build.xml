@@ -9,7 +9,7 @@
             <arg value="-jar"/>
             <arg value="kanban-now-card-service.jar"/>
             <arg value="server"/>
-            <arg value="../properties/card-service.yml"/>
+            <arg value="properties/card-service.yml"/>
         </exec>
 	</target>
 
