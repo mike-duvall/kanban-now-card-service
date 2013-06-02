@@ -12,6 +12,7 @@ dependencies {
     testCompile 'org.kohsuke.stapler:json-lib:2.1-rev6'
     testCompile 'junit:junit:4.+'
     testCompile 'com.yammer.dropwizard:dropwizard-client:0.6.2'
+    testCompile 'com.yammer.dropwizard:dropwizard-testing:0.6.2'
     testCompile 'org.easytesting:fest-assert:1.4'
 }
 

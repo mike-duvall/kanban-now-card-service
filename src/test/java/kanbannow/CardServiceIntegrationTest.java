@@ -1,6 +1,7 @@
 package kanbannow;
 
 import com.yammer.dropwizard.config.ConfigurationFactory;
+import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
 import com.yammer.dropwizard.validation.Validator;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -9,6 +10,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -26,16 +28,13 @@ public class CardServiceIntegrationTest {
 
     public static final String PROPERTIES_PATH = "../properties/";
 
+    @Rule
+    public DropwizardServiceRule<CardServiceConfiguration> serviceRule = new DropwizardServiceRule<CardServiceConfiguration>(CardService.class, PROPERTIES_PATH + "card-service.yml" );
+
     @Test
     public void test() throws Exception {
 
         CardService service = new CardService();
-
-        service.startEmbeddedServer(PROPERTIES_PATH + "card-service.yml");
-        if (!service.isEmbeddedServerRunning()) {
-            throw new Exception("Service ended immediately after starting.");
-        }
-
 
         ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
         File configFile = new File(PROPERTIES_PATH + "card-service.yml");
@@ -98,39 +97,28 @@ public class CardServiceIntegrationTest {
 
         HttpClient httpclient = new DefaultHttpClient();
 
-        try {
-
 //            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
 
-            String uri = "http://localhost:" + port + "/cards/board/" + boardId;
-            HttpGet httpget = new HttpGet(uri);
+        String uri = "http://localhost:" + port + "/cards/board/" + boardId;
+        HttpGet httpget = new HttpGet(uri);
 
-            System.out.println("executing request " + httpget.getURI());
+        System.out.println("executing request " + httpget.getURI());
 
-            HttpResponse httpResponse = httpclient.execute(httpget);
-            StatusLine statusLine = httpResponse.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
-
-
-
-            assertThat(statusCode).isEqualTo(200);
-
-            InputStream inputStream = httpResponse.getEntity().getContent();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String result = bufferedReader.readLine();
-
-            assertThat(result).isEqualTo("{\"id\":" + id + "}");
+        HttpResponse httpResponse = httpclient.execute(httpget);
+        StatusLine statusLine = httpResponse.getStatusLine();
+        int statusCode = statusLine.getStatusCode();
 
 
 
+        assertThat(statusCode).isEqualTo(200);
 
+        InputStream inputStream = httpResponse.getEntity().getContent();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        String result = bufferedReader.readLine();
 
-            Thread.sleep(5000);
-        }
-        finally {
-            service.stopEmbeddedServer();
-        }
+        assertThat(result).isEqualTo("{\"id\":" + id + "}");
+
     }
 
 
