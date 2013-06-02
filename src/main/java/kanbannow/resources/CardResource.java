@@ -11,26 +11,15 @@ import org.skife.jdbi.v2.tweak.HandleCallback;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/cards/board")
 @Produces(MediaType.APPLICATION_JSON)
 public class CardResource {
-    private final String template;
-    private final String defaultName;
-    private final AtomicLong counter;
     private final DatabaseConfiguration databaseConfiguration;
 
-    public CardResource(String template, String defaultName, DatabaseConfiguration aDatabaseConfiguration) {
-        this.template = template;
-        this.defaultName = defaultName;
-        this.counter = new AtomicLong();
+    public CardResource( DatabaseConfiguration aDatabaseConfiguration) {
         this.databaseConfiguration = aDatabaseConfiguration;
     }
 
@@ -38,8 +27,6 @@ public class CardResource {
     @Timed
     @Path("{id}")
     public Card sayHello(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) throws IOException, ClassNotFoundException {
-//        return new Card(counter.incrementAndGet(),
-//                          String.format(template, name.or(defaultName)));
 
         String databaseDriverClassName = databaseConfiguration.getDriverClass();
 
