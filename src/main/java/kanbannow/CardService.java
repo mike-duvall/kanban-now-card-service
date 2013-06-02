@@ -25,7 +25,7 @@ public class CardService extends Service<CardServiceConfiguration> {
     public void run(CardServiceConfiguration configuration, Environment environment) throws Exception {
         final String template = configuration.getTemplate();
         final String defaultName = configuration.getDefaultName();
-        environment.addResource(new CardResource(template, defaultName));
+        environment.addResource(new CardResource(template, defaultName, configuration.getDatabase()));
         environment.addHealthCheck(new TemplateHealthCheck(template));
 
     }

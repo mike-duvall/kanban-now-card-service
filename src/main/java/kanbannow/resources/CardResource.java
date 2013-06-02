@@ -1,5 +1,6 @@
 package kanbannow.resources;
 
+import com.yammer.dropwizard.db.DatabaseConfiguration;
 import kanbannow.core.Card;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
@@ -24,11 +25,13 @@ public class CardResource {
     private final String template;
     private final String defaultName;
     private final AtomicLong counter;
+    private final DatabaseConfiguration databaseConfiguration;
 
-    public CardResource(String template, String defaultName) {
+    public CardResource(String template, String defaultName, DatabaseConfiguration aDatabaseConfiguration) {
         this.template = template;
         this.defaultName = defaultName;
         this.counter = new AtomicLong();
+        this.databaseConfiguration = aDatabaseConfiguration;
     }
 
     @GET
@@ -37,19 +40,15 @@ public class CardResource {
     public Card sayHello(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) throws IOException, ClassNotFoundException {
 //        return new Card(counter.incrementAndGet(),
 //                          String.format(template, name.or(defaultName)));
-        Properties props = new Properties();
 
-        File dbPropertiesFile = new File("../properties/database.properties");
-        FileInputStream fileInputStream = new FileInputStream(dbPropertiesFile);
-        props.load(fileInputStream);
-
-        String databaseDriverClassName = (String) props.get("dataSource.driverClassName");
+        String databaseDriverClassName = databaseConfiguration.getDriverClass();
 
         Class.forName(databaseDriverClassName);
 
-        String dataSourceUrl = (String) props.get("dataSource.url" );
-        String dataSourceUsername = (String) props.get("dataSource.username");
-        String dataSourcePassword = (String) props.get("dataSource.password");
+        String dataSourceUrl = databaseConfiguration.getUrl();
+        String dataSourceUsername = databaseConfiguration.getUser();
+        String dataSourcePassword = databaseConfiguration.getPassword();
+
 
         DBI dbi = new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
 
