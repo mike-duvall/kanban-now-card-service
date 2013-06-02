@@ -1,6 +1,7 @@
 package kanbannow;
 
 import com.yammer.dropwizard.config.ConfigurationFactory;
+import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
 import com.yammer.dropwizard.validation.Validator;
 import org.apache.http.HttpResponse;
@@ -16,11 +17,7 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.LongMapper;
-
-
 import java.io.*;
-import java.util.Properties;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 
@@ -29,8 +26,6 @@ public class CardServiceIntegrationTest {
 
     public static final String PROPERTIES_PATH = "../properties/";
     private Handle h;
-    private DBI dbi;
-
 
     @Rule
     public DropwizardServiceRule<CardServiceConfiguration> serviceRule = new DropwizardServiceRule<CardServiceConfiguration>(CardService.class, PROPERTIES_PATH + "card-service.yml" );
@@ -39,33 +34,26 @@ public class CardServiceIntegrationTest {
 
     @Before
     public void before() throws Exception {
-        Properties props = new Properties();
+        CardServiceConfiguration cardServiceConfiguration = serviceRule.getConfiguration();
+        DatabaseConfiguration databaseConfiguration = cardServiceConfiguration.getDatabase();
 
-        File dbPropertiesFile = new File(PROPERTIES_PATH + "database.properties");
-        FileInputStream fileInputStream = new FileInputStream(dbPropertiesFile);
-        props.load(fileInputStream);
-
-        String databaseDriverClassName = (String) props.get("dataSource.driverClassName");
-
+        String databaseDriverClassName = databaseConfiguration.getDriverClass();
 
         Class.forName(databaseDriverClassName);
 
-        String dataSourceUrl = (String) props.get("dataSource.url" );
-        String dataSourceUsername = (String) props.get("dataSource.username");
-        String dataSourcePassword = (String) props.get("dataSource.password");
+        String dataSourceUrl = databaseConfiguration.getUrl();
+        String dataSourceUsername = databaseConfiguration.getUser();
+        String dataSourcePassword = databaseConfiguration.getPassword();
 
-        dbi = new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
+
+        DBI dbi = new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
 
         h = dbi.open();
-
 
         h.execute("delete from card");
         h.execute("delete from board");
         h.execute("delete from authorities");
         h.execute("delete from users");
-
-
-
     }
 
 
