@@ -59,7 +59,7 @@ public class CardServiceIntegrationTest {
 
 
     @Test
-    public void test() throws Exception {
+    public void shouldReturnOnlyPostponedCardsFromCorrectBoard() throws Exception {
 
         ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
         File configFile = new File(PROPERTIES_PATH + "card-service.yml");
@@ -68,21 +68,19 @@ public class CardServiceIntegrationTest {
 
         Long userId = createUser();
 
-        String boardName = "Test board";
-        h.execute("insert into board ( name, user_id) values (?, ?)", boardName, userId);
-        Long boardId = h.createQuery("select id from board where name = '" + boardName + "'")
+        String boardName1 = "Test board";
+        h.execute("insert into board ( name, user_id) values (?, ?)", boardName1, userId);
+        Long boardId1 = h.createQuery("select id from board where name = '" + boardName1 + "'")
                 .map(LongMapper.FIRST)
                 .first();
 
-
-
-        Long id = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
+        Long cardId1 = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
                 .map(LongMapper.FIRST)
                 .first();
 
         String cardText = "Test card text";
         long cardLocation = 1;
-        h.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", id, cardText, cardLocation, boardId);
+        h.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId1, cardText, cardLocation, boardId1);
 
 
         h.close();
@@ -92,7 +90,7 @@ public class CardServiceIntegrationTest {
 
 //            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
 
-        String uri = "http://localhost:" + port + "/cards/board/" + boardId;
+        String uri = "http://localhost:" + port + "/cards/board/" + boardId1;
         HttpGet httpget = new HttpGet(uri);
 
         System.out.println("executing request " + httpget.getURI());
@@ -110,7 +108,7 @@ public class CardServiceIntegrationTest {
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         String result = bufferedReader.readLine();
 
-        assertThat(result).isEqualTo("{\"id\":" + id + "}");
+        assertThat(result).isEqualTo("{\"id\":" + cardId1 + "}");
 
     }
 
