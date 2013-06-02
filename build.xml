@@ -20,6 +20,9 @@
             <arg value="kanban-now-card-service.jar"/>
         </exec>
 
+        <!-- Hack sleep.  Should instead put in explicit check that server stopped -->
+        <sleep seconds="3"/>
+
     </target>
 
 </project>
