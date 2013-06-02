@@ -16,9 +16,6 @@ public class CardService extends Service<CardServiceConfiguration> {
     @Override
     public void initialize(Bootstrap<CardServiceConfiguration> bootstrap) {
         bootstrap.setName("hello-world");
-        bootstrap.addCommand(embeddedServerCommand);
-
-
     }
 
     @Override
@@ -27,24 +24,6 @@ public class CardService extends Service<CardServiceConfiguration> {
         environment.addHealthCheck(new TemplateHealthCheck("Make this a real healthCheck"));
 
     }
-
-
-    private final EmbeddedServerCommand<CardServiceConfiguration> embeddedServerCommand =
-            new EmbeddedServerCommand<CardServiceConfiguration>(this);
-
-    public void startEmbeddedServer(String configFileName) throws Exception {
-        run(new String[] {"embedded-server", configFileName});
-    }
-
-    public void stopEmbeddedServer() throws Exception {
-        embeddedServerCommand.stop();
-    }
-
-    public boolean isEmbeddedServerRunning() {
-        return embeddedServerCommand.isRunning();
-    }
-
-
 
 
 }
