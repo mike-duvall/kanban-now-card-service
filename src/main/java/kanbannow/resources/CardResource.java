@@ -26,7 +26,7 @@ public class CardResource {
     @GET
     @Timed
     @Path("{id}")
-    public Card sayHello(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) throws IOException, ClassNotFoundException {
+    public List<Card> getCards(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) throws IOException, ClassNotFoundException {
 
         String databaseDriverClassName = databaseConfiguration.getDriverClass();
 
@@ -50,6 +50,6 @@ public class CardResource {
             }
         });
 
-        return cards.get(0);
+        return cards;
     }
 }

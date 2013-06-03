@@ -74,17 +74,12 @@ public class CardServiceIntegrationTest {
                 .map(LongMapper.FIRST)
                 .first();
 
-//        Long cardId1 = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
-//                .map(LongMapper.FIRST)
-//                .first();
-
         String cardText1 = "Test card text1";
-//        long cardLocation = 1;
-//        h.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId1, cardText1, cardLocation, boardId1);
 
         Long cardId1 = insertCardIntoBoard(boardId1, cardText1);
 
-//        add another card to board1 here, then make test check for it
+        String cardText2 = "Test card text2";
+        Long cardId2 = insertCardIntoBoard(boardId1, cardText2);
 
 
 //        String boardName2 = "Test board2";
@@ -126,7 +121,7 @@ public class CardServiceIntegrationTest {
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         String result = bufferedReader.readLine();
 
-        assertThat(result).isEqualTo("{\"id\":" + cardId1 + "}");
+        assertThat(result).isEqualTo("[{\"id\":" + cardId1 + "}" +"," + "{\"id\":" + cardId2 + "}]");
 
     }
 
