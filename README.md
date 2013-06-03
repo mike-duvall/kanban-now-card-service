@@ -4,7 +4,9 @@ Basic service for handling Kanban cards.
 
 This is my first foray into building a microservice.
 
-The current implementation is almost non-existent.  Will be rapidly adding more functionality over time.
+The current implementation returns only the postponed cards for a specific board.
+
+I will be adding more functionality soon and over time.
 
 
 ## Notes
