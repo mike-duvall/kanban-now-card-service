@@ -75,26 +75,20 @@ public class CardServiceIntegrationTest {
                 .first();
 
         String cardText1 = "Test card text1";
+        String cardText2 = "Test card text2";
 
         Long cardId1 = insertCardIntoBoard(boardId1, cardText1);
-
-        String cardText2 = "Test card text2";
         Long cardId2 = insertCardIntoBoard(boardId1, cardText2);
 
 
-//        String boardName2 = "Test board2";
-//        h.execute("insert into board ( name, user_id) values (?, ?)", boardName2, userId);
-//        Long boardId2 = h.createQuery("select id from board where name = '" + boardName2 + "'")
-//                .map(LongMapper.FIRST)
-//                .first();
-//
-//        Long cardId2 = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
-//                .map(LongMapper.FIRST)
-//                .first();
-//
-//        String cardText2 = "Test card text2";
-//        h.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId2, cardText2, cardLocation, boardId2);
+        String boardName2 = "Test board2";
+        h.execute("insert into board ( name, user_id) values (?, ?)", boardName2, userId);
+        Long boardId2 = h.createQuery("select id from board where name = '" + boardName2 + "'")
+                .map(LongMapper.FIRST)
+                .first();
 
+        insertCardIntoBoard(boardId2, cardText1);
+        insertCardIntoBoard(boardId2, cardText2);
 
         h.close();
 

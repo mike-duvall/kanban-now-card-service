@@ -43,9 +43,12 @@ public class CardResource {
 
 //        id, text, location, board_id
 
+
+        final String query = "select id from card where board_id = " + boardId;
+
         List<Card> cards = dbi.withHandle(new HandleCallback<List<Card>>() {
             public List<Card> withHandle(Handle h) {
-                return h.createQuery("select id from card")
+                return h.createQuery(query)
                         .map(new BeanMapper<Card>(Card.class)).list();
             }
         });
