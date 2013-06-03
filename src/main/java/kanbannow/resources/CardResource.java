@@ -41,10 +41,7 @@ public class CardResource {
 
         Handle h = dbi.open();
 
-//        id, text, location, board_id
-
-
-        final String query = "select id from card where board_id = " + boardId;
+        final String query = "select id from card where postponed_date is not null and board_id = " + boardId;
 
         List<Card> cards = dbi.withHandle(new HandleCallback<List<Card>>() {
             public List<Card> withHandle(Handle h) {

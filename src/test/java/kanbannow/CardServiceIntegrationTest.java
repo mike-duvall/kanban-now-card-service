@@ -18,6 +18,8 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.LongMapper;
 import java.io.*;
+import java.sql.Date;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 
@@ -77,8 +79,9 @@ public class CardServiceIntegrationTest {
         String cardText1 = "Test card text1";
         String cardText2 = "Test card text2";
 
-        Long cardId1 = insertCardIntoBoard(boardId1, cardText1);
-        Long cardId2 = insertCardIntoBoard(boardId1, cardText2);
+        Long cardId1 = insertPostponedCardIntoBoard(boardId1, cardText1);
+        Long cardId2 = insertPostponedCardIntoBoard(boardId1, cardText2);
+        insertCardIntoBoard(boardId1, "non postponed card");
 
 
         String boardName2 = "Test board2";
@@ -128,10 +131,19 @@ public class CardServiceIntegrationTest {
         h.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId, cardText, cardLocation, boardId);
 
         return cardId;
-
-
-
     }
+
+    private Long insertPostponedCardIntoBoard(Long boardId, String cardText) {
+        long cardLocation = 1;
+        Long cardId = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
+                .map(LongMapper.FIRST)
+                .first();
+
+        h.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, cardText, cardLocation, boardId, new Date(System.currentTimeMillis()));
+
+        return cardId;
+    }
+
 
     private Long createUser() {
         String username = "ted";
