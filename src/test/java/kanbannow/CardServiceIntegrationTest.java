@@ -10,6 +10,7 @@ import com.yammer.dropwizard.config.ConfigurationFactory;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
 import com.yammer.dropwizard.validation.Validator;
+import net.sf.json.test.JSONAssert;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -151,7 +152,8 @@ public class CardServiceIntegrationTest {
         row.put("postponedDate", expectedPostponedDateString);
         expectedCardArrayJson.add(row);
 
-        assertThat(jsonResults.equals(expectedCardArrayJson)).isTrue();
+//        assertThat(jsonResults.equals(expectedCardArrayJson)).isTrue();
+        JSONAssert.assertEquals(  jsonResults, expectedCardArrayJson );
 
     }
 
