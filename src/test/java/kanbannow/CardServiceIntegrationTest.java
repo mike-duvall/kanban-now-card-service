@@ -1,5 +1,11 @@
 package kanbannow;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yammer.dropwizard.config.ConfigurationFactory;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
@@ -19,6 +25,8 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.LongMapper;
 import java.io.*;
 import java.sql.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -55,6 +63,7 @@ public class CardServiceIntegrationTest {
         h.execute("delete from card");
         h.execute("delete from board");
         h.execute("delete from authorities");
+        h.execute("delete from user_feature_toggle");
         h.execute("delete from users");
     }
 
@@ -118,7 +127,24 @@ public class CardServiceIntegrationTest {
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         String result = bufferedReader.readLine();
 
-        assertThat(result).isEqualTo("[{\"id\":" + cardId1 + "}" +"," + "{\"id\":" + cardId2 + "}]");
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonResults = mapper.readTree( result );
+
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+
+        ArrayNode expectedCardArrayJson = new ArrayNode(factory);
+
+        ObjectNode row = new ObjectNode(factory);
+        row.put("id", cardId1.intValue());
+        row.put("cardText", cardText1);
+        expectedCardArrayJson.add(row);
+
+        row = new ObjectNode(factory);
+        row.put("id", cardId2.intValue());
+        row.put("cardText", cardText2);
+        expectedCardArrayJson.add(row);
+
+        assertThat(jsonResults.equals(expectedCardArrayJson)).isTrue();
 
     }
 

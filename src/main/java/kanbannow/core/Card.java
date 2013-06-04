@@ -3,6 +3,7 @@ package kanbannow.core;
 public class Card {
 
     private long id;
+    private String cardText;
 
     public Card() {
 
@@ -20,4 +21,11 @@ public class Card {
     }
 
 
+    public String getCardText() {
+        return cardText;
+    }
+
+    public void setCardText(String cardText) {
+        this.cardText = cardText;
+    }
 }
