@@ -17,6 +17,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,8 +26,6 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.LongMapper;
 import java.io.*;
 import java.sql.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -88,8 +87,13 @@ public class CardServiceIntegrationTest {
         String cardText1 = "Test card text1";
         String cardText2 = "Test card text2";
 
-        Long cardId1 = insertPostponedCardIntoBoard(boardId1, cardText1);
-        Long cardId2 = insertPostponedCardIntoBoard(boardId1, cardText2);
+        int year = 2101;
+        int month = 1;
+        int day = 1;
+
+        DateTime postponedDate = new DateTime(year,month,day,0,0,0);
+        Long cardId1 = insertPostponedCardIntoBoard(boardId1, cardText1, new Date(postponedDate.getMillis()));
+        Long cardId2 = insertPostponedCardIntoBoard(boardId1, cardText2, new Date(postponedDate.getMillis()));
         insertCardIntoBoard(boardId1, "non postponed card");
 
 
@@ -137,11 +141,14 @@ public class CardServiceIntegrationTest {
         ObjectNode row = new ObjectNode(factory);
         row.put("id", cardId1.intValue());
         row.put("cardText", cardText1);
+        String expectedPostponedDateString = "" + month + "/" + day + "/" + year;
+        row.put("postponedDate", expectedPostponedDateString);
         expectedCardArrayJson.add(row);
 
         row = new ObjectNode(factory);
         row.put("id", cardId2.intValue());
         row.put("cardText", cardText2);
+        row.put("postponedDate", expectedPostponedDateString);
         expectedCardArrayJson.add(row);
 
         assertThat(jsonResults.equals(expectedCardArrayJson)).isTrue();
@@ -159,13 +166,13 @@ public class CardServiceIntegrationTest {
         return cardId;
     }
 
-    private Long insertPostponedCardIntoBoard(Long boardId, String cardText) {
+    private Long insertPostponedCardIntoBoard(Long boardId, String cardText, Date postponedDate) {
         long cardLocation = 1;
         Long cardId = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
                 .map(LongMapper.FIRST)
                 .first();
 
-        h.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, cardText, cardLocation, boardId, new Date(System.currentTimeMillis()));
+        h.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, cardText, cardLocation, boardId, postponedDate);
 
         return cardId;
     }

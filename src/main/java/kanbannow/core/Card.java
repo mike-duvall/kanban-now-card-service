@@ -4,6 +4,7 @@ public class Card {
 
     private long id;
     private String cardText;
+    private String postponedDate;
 
     public Card() {
 
@@ -27,5 +28,13 @@ public class Card {
 
     public void setCardText(String cardText) {
         this.cardText = cardText;
+    }
+
+    public String getPostponedDate() {
+        return postponedDate;
+    }
+
+    public void setPostponedDate(String postponedDate) {
+        this.postponedDate = postponedDate;
     }
 }
