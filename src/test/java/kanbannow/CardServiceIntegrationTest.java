@@ -88,13 +88,19 @@ public class CardServiceIntegrationTest {
         String cardText1 = "Test card text1";
         String cardText2 = "Test card text2";
 
-        int year = 2101;
-        int month = 1;
-        int day = 1;
+        int year1 = 2101;
+        int month1 = 2;
+        int day1 = 2;
 
-        DateTime postponedDate = new DateTime(year,month,day,0,0,0);
-        Long cardId1 = insertPostponedCardIntoBoard(boardId1, cardText1, new Date(postponedDate.getMillis()));
-        Long cardId2 = insertPostponedCardIntoBoard(boardId1, cardText2, new Date(postponedDate.getMillis()));
+        int year2 = 2095;
+        int month2 = 1;
+        int day2 = 1;
+
+
+        DateTime postponedDate1 = new DateTime(year1,month1,day1,0,0,0);
+        DateTime postponedDate2 = new DateTime(year2,month2,day2,0,0,0);
+        Long cardId1 = insertPostponedCardIntoBoard(boardId1, cardText1, new Date(postponedDate1.getMillis()));
+        Long cardId2 = insertPostponedCardIntoBoard(boardId1, cardText2, new Date(postponedDate2.getMillis()));
         insertCardIntoBoard(boardId1, "non postponed card");
 
 
@@ -140,20 +146,21 @@ public class CardServiceIntegrationTest {
         ArrayNode expectedCardArrayJson = new ArrayNode(factory);
 
         ObjectNode row = new ObjectNode(factory);
-        row.put("id", cardId1.intValue());
-        row.put("cardText", cardText1);
-        String expectedPostponedDateString = "" + month + "/" + day + "/" + year;
-        row.put("postponedDate", expectedPostponedDateString);
+        row.put("id", cardId2.intValue());
+        row.put("cardText", cardText2);
+        String expectedPostponedDateString2 = "" + month2 + "/" + day2 + "/" + year2;
+        row.put("postponedDate", expectedPostponedDateString2);
         expectedCardArrayJson.add(row);
 
         row = new ObjectNode(factory);
-        row.put("id", cardId2.intValue());
-        row.put("cardText", cardText2);
-        row.put("postponedDate", expectedPostponedDateString);
+        row.put("id", cardId1.intValue());
+        row.put("cardText", cardText1);
+        String expectedPostponedDateString1 = "" + month1 + "/" + day1 + "/" + year1;
+        row.put("postponedDate", expectedPostponedDateString1);
         expectedCardArrayJson.add(row);
 
 //        assertThat(jsonResults.equals(expectedCardArrayJson)).isTrue();
-        JSONAssert.assertEquals(  jsonResults, expectedCardArrayJson );
+        JSONAssert.assertEquals(  expectedCardArrayJson,  jsonResults );
 
     }
 

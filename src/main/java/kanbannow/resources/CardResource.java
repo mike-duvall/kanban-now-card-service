@@ -41,7 +41,8 @@ public class CardResource {
 
         Handle h = dbi.open();
 
-        final String query = "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = " + boardId;
+        final String query =
+                "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = " + boardId + " order by postponed_date";
 
         List<Card> cards = dbi.withHandle(new HandleCallback<List<Card>>() {
             public List<Card> withHandle(Handle h) {
