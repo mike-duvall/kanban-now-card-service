@@ -16,7 +16,6 @@
 
 	<target name="stopServer">
         <exec executable="pkill" osfamily="unix" spawn="false" >
-            <arg value="-9"/>
             <arg value="-f"/>
             <arg value="kanban-now-card-service.jar"/>
         </exec>
