@@ -39,12 +39,19 @@ public class CardServiceIntegrationTest {
 
     public static final String PROPERTIES_PATH = "../properties/";
     public static final String CARD_SERVICE_YML = "card-service.yml";
+    public static final String FORWARD_SLASH = "/";
+    public static final String SINGLE_QUOTE = "'";
     private Handle h;
 
 
-    @Rule
-    public DropwizardServiceRule<CardServiceConfiguration> serviceRule = new DropwizardServiceRule<CardServiceConfiguration>(CardService.class, PROPERTIES_PATH + CARD_SERVICE_YML);
 
+    private DropwizardServiceRule<CardServiceConfiguration> serviceRule = new DropwizardServiceRule<CardServiceConfiguration>(CardService.class, PROPERTIES_PATH + CARD_SERVICE_YML);
+
+
+    @Rule
+    public DropwizardServiceRule<CardServiceConfiguration> getServiceRule() {
+        return serviceRule;
+    }
 
 
     @Before
@@ -158,34 +165,36 @@ public class CardServiceIntegrationTest {
         ObjectNode row = new ObjectNode(factory);
         row.put("id", cardId.intValue());
         row.put("cardText", cardText);
-        String expectedPostponedDateString2 = "" + month + "/" + day + "/" + year;
+        String expectedPostponedDateString2 = "" + month + FORWARD_SLASH + day + FORWARD_SLASH + year;
         row.put("postponedDate", expectedPostponedDateString2);
         return row;
     }
 
     private Long createBoard(Long userId, String boardName1) {
         h.execute("insert into board ( name, user_id) values (?, ?)", boardName1, userId);
-        return h.createQuery("select id from board where name = '" + boardName1 + "'")
+        return h.createQuery("select id from board where name = '" + boardName1 + SINGLE_QUOTE)
                 .map(LongMapper.FIRST)
                 .first();
     }
 
     private Long insertCardIntoBoard(Long boardId, String cardText) {
         long cardLocation = 1;
-        Long cardId = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
-                .map(LongMapper.FIRST)
-                .first();
+        Long cardId = getNextCardIdFromSequence();
 
         h.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId, cardText, cardLocation, boardId);
 
         return cardId;
     }
 
+    private Long getNextCardIdFromSequence() {
+        return h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
+                    .map(LongMapper.FIRST)
+                    .first();
+    }
+
     private Long insertPostponedCardIntoBoard(Long boardId, String cardText, Date postponedDate) {
         long cardLocation = 1;
-        Long cardId = h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
-                .map(LongMapper.FIRST)
-                .first();
+        Long cardId = getNextCardIdFromSequence();
 
         h.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, cardText, cardLocation, boardId, postponedDate);
 
@@ -196,12 +205,9 @@ public class CardServiceIntegrationTest {
     private Long createUser() {
         String username = "ted";
         h.execute("insert into users (username, password) values ( ?, ?)", username, "password");
-        Long userId = h.createQuery("select id from users where username = '" + username + "'" )
+        return h.createQuery("select id from users where username = '" + username + SINGLE_QUOTE)
                 .map(LongMapper.FIRST)
                 .first();
-
-        return userId;
-
     }
 
 
