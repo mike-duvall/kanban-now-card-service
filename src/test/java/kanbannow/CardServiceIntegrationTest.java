@@ -1,6 +1,5 @@
 package kanbannow;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -25,7 +24,11 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.LongMapper;
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -35,31 +38,34 @@ public class CardServiceIntegrationTest {
 
 
     public static final String PROPERTIES_PATH = "../properties/";
+    public static final String CARD_SERVICE_YML = "card-service.yml";
     private Handle h;
 
+
     @Rule
-    public DropwizardServiceRule<CardServiceConfiguration> serviceRule = new DropwizardServiceRule<CardServiceConfiguration>(CardService.class, PROPERTIES_PATH + "card-service.yml" );
+    public DropwizardServiceRule<CardServiceConfiguration> serviceRule = new DropwizardServiceRule<CardServiceConfiguration>(CardService.class, PROPERTIES_PATH + CARD_SERVICE_YML);
 
 
 
     @Before
     public void before() throws Exception {
+        DBI dbi = initializeDB();
+        cleanupDbData(dbi);
+    }
+
+    private DBI initializeDB() throws ClassNotFoundException {
         CardServiceConfiguration cardServiceConfiguration = serviceRule.getConfiguration();
         DatabaseConfiguration databaseConfiguration = cardServiceConfiguration.getDatabase();
-
         String databaseDriverClassName = databaseConfiguration.getDriverClass();
-
         Class.forName(databaseDriverClassName);
-
         String dataSourceUrl = databaseConfiguration.getUrl();
         String dataSourceUsername = databaseConfiguration.getUser();
         String dataSourcePassword = databaseConfiguration.getPassword();
+        return new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
+    }
 
-
-        DBI dbi = new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
-
+    private void cleanupDbData(DBI dbi) {
         h = dbi.open();
-
         h.execute("delete from card");
         h.execute("delete from board");
         h.execute("delete from authorities");
@@ -68,22 +74,18 @@ public class CardServiceIntegrationTest {
     }
 
 
-
     @Test
     public void shouldReturnOnlyPostponedCardsFromCorrectBoard() throws Exception {
 
         ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
-        File configFile = new File(PROPERTIES_PATH + "card-service.yml");
+        File configFile = new File(PROPERTIES_PATH + CARD_SERVICE_YML);
         CardServiceConfiguration configuration = configurationFactory.build(configFile);
         int port  = configuration.getHttpConfiguration().getPort();
 
         Long userId = createUser();
 
         String boardName1 = "Test board1";
-        h.execute("insert into board ( name, user_id) values (?, ?)", boardName1, userId);
-        Long boardId1 = h.createQuery("select id from board where name = '" + boardName1 + "'")
-                .map(LongMapper.FIRST)
-                .first();
+        Long boardId1 = createBoard(userId, boardName1);
 
         String cardText1 = "Test card text1";
         String cardText2 = "Test card text2";
@@ -105,10 +107,7 @@ public class CardServiceIntegrationTest {
 
 
         String boardName2 = "Test board2";
-        h.execute("insert into board ( name, user_id) values (?, ?)", boardName2, userId);
-        Long boardId2 = h.createQuery("select id from board where name = '" + boardName2 + "'")
-                .map(LongMapper.FIRST)
-                .first();
+        Long boardId2 = createBoard(userId, boardName2);
 
         insertCardIntoBoard(boardId2, cardText1);
         insertCardIntoBoard(boardId2, cardText2);
@@ -145,23 +144,30 @@ public class CardServiceIntegrationTest {
 
         ArrayNode expectedCardArrayJson = new ArrayNode(factory);
 
-        ObjectNode row = new ObjectNode(factory);
-        row.put("id", cardId2.intValue());
-        row.put("cardText", cardText2);
-        String expectedPostponedDateString2 = "" + month2 + "/" + day2 + "/" + year2;
-        row.put("postponedDate", expectedPostponedDateString2);
+
+        ObjectNode row = createObjectNode(cardText2, year2, month2, day2, cardId2, factory);
         expectedCardArrayJson.add(row);
 
-        row = new ObjectNode(factory);
-        row.put("id", cardId1.intValue());
-        row.put("cardText", cardText1);
-        String expectedPostponedDateString1 = "" + month1 + "/" + day1 + "/" + year1;
-        row.put("postponedDate", expectedPostponedDateString1);
+        row = createObjectNode(cardText1, year1, month1, day1, cardId1, factory);
         expectedCardArrayJson.add(row);
 
-//        assertThat(jsonResults.equals(expectedCardArrayJson)).isTrue();
         JSONAssert.assertEquals(  expectedCardArrayJson,  jsonResults );
+    }
 
+    private ObjectNode createObjectNode(String cardText, int year, int month, int day, Long cardId, JsonNodeFactory factory) {
+        ObjectNode row = new ObjectNode(factory);
+        row.put("id", cardId.intValue());
+        row.put("cardText", cardText);
+        String expectedPostponedDateString2 = "" + month + "/" + day + "/" + year;
+        row.put("postponedDate", expectedPostponedDateString2);
+        return row;
+    }
+
+    private Long createBoard(Long userId, String boardName1) {
+        h.execute("insert into board ( name, user_id) values (?, ?)", boardName1, userId);
+        return h.createQuery("select id from board where name = '" + boardName1 + "'")
+                .map(LongMapper.FIRST)
+                .first();
     }
 
     private Long insertCardIntoBoard(Long boardId, String cardText) {

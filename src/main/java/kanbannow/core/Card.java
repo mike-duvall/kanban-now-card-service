@@ -11,8 +11,8 @@ public class Card {
     }
 
 
-    public void setId(long id) {
-        this.id = id;
+    public void setId(long anId) {
+        this.id = anId;
     }
 
 
@@ -26,15 +26,15 @@ public class Card {
         return cardText;
     }
 
-    public void setCardText(String cardText) {
-        this.cardText = cardText;
+    public void setCardText(String aCardText) {
+        this.cardText = aCardText;
     }
 
     public String getPostponedDate() {
         return postponedDate;
     }
 
-    public void setPostponedDate(String postponedDate) {
-        this.postponedDate = postponedDate;
+    public void setPostponedDate(String aPostponedDate) {
+        this.postponedDate = aPostponedDate;
     }
 }

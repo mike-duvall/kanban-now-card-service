@@ -1,5 +1,6 @@
 apply plugin: 'java'
 
+
 repositories {
     mavenCentral()
 }
@@ -39,3 +40,32 @@ jar {
 ant.importBuild 'build.xml'
 
 
+apply plugin: 'checkstyle'
+
+task checkstyleReport << {
+    if (file("$buildDir/reports/checkstyle/${checkType}.xml").exists()) {
+        ant.xslt(in: "$buildDir/reports/checkstyle/${checkType}.xml",
+                style:"config/checkstyle/checkstyle.xsl",
+                out:"$buildDir/reports/checkstyle/checkstyle_${checkType}.html"
+        )
+    }
+}
+
+
+gradle.taskGraph.afterTask {Task task, TaskState state ->
+    if(state.failure) {
+        if (task.name in ['checkstyleMain', 'checkstyleTest']) {
+            checkstyleReport {
+                def matcher = task.name =~ /^checkstyle(.*)$/
+                if (matcher.matches()) {
+                    checkType = matcher.group(1).toLowerCase()
+                }
+            }
+            checkstyleReport.execute()
+        }
+    }
+}
+
+checkstyle {
+    ignoreFailures = true
+}

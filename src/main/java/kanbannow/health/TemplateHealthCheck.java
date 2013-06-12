@@ -5,9 +5,9 @@ import com.yammer.metrics.core.HealthCheck;
 public class TemplateHealthCheck extends HealthCheck {
     private final String template;
 
-    public TemplateHealthCheck(String template) {
+    public TemplateHealthCheck(String aTemplate) {
         super("template");
-        this.template = template;
+        this.template = aTemplate;
     }
 
     @Override

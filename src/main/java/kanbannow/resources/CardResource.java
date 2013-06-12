@@ -9,7 +9,12 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
-import javax.ws.rs.*;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
@@ -27,30 +32,33 @@ public class CardResource {
     @Timed
     @Path("{id}")
     public List<Card> getCards(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) throws IOException, ClassNotFoundException {
-
-        String databaseDriverClassName = databaseConfiguration.getDriverClass();
-
-        Class.forName(databaseDriverClassName);
-
-        String dataSourceUrl = databaseConfiguration.getUrl();
-        String dataSourceUsername = databaseConfiguration.getUser();
-        String dataSourcePassword = databaseConfiguration.getPassword();
-
-
-        DBI dbi = new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
-
-        Handle h = dbi.open();
-
+        DBI dbi = initializeDbi();
         final String query =
-                "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = " + boardId + " order by postponed_date";
+                "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = "
+                        + boardId + " order by postponed_date";
+//        final String query =
+//                "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = "
+//                        + boardId;
+        List<Card> cards = dbi.withHandle( createCallback(query) );
+        return cards;
+    }
 
-        List<Card> cards = dbi.withHandle(new HandleCallback<List<Card>>() {
+    private HandleCallback<List<Card>> createCallback(final String query) {
+        return new HandleCallback<List<Card>>() {
             public List<Card> withHandle(Handle h) {
                 return h.createQuery(query)
                         .map(new BeanMapper<Card>(Card.class)).list();
             }
-        });
+        };
 
-        return cards;
+    }
+
+    private DBI initializeDbi() throws ClassNotFoundException {
+        String databaseDriverClassName = databaseConfiguration.getDriverClass();
+        Class.forName(databaseDriverClassName);
+        String dataSourceUrl = databaseConfiguration.getUrl();
+        String dataSourceUsername = databaseConfiguration.getUser();
+        String dataSourcePassword = databaseConfiguration.getPassword();
+        return new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
     }
 }
