@@ -93,32 +93,15 @@ public class CardServiceIntegrationTest {
         String boardName1 = "Test board1";
         Long boardId1 = createBoard(userId, boardName1);
 
-        String cardText1 = "Test card text1";
-        String cardText2 = "Test card text2";
-
-        Card card1 = new Card();
-        card1.setCardText(cardText1);
-        card1.setPostponedDate("2/2/2101");
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("MM/dd/yyyy");
-        DateTime postponedDate1 = formatter.parseDateTime(card1.getPostponedDate());
-        Long cardId1 = insertPostponedCardIntoBoard(boardId1, cardText1, new Date(postponedDate1.getMillis()));
-        card1.setId(cardId1);
-
-
-        Card card2 = new Card();
-        card2.setCardText(cardText2);
-        card2.setPostponedDate("1/1/2095");
-        DateTime postponedDate2 = formatter.parseDateTime(card2.getPostponedDate());
-        Long cardId2 = insertPostponedCardIntoBoard(boardId1, cardText2, new Date(postponedDate2.getMillis()));
-        insertCardIntoBoard(boardId1, "non postponed card");
-        card2.setId(cardId2);
+        Card card1 = createAndInsertCard("Test card text1","2/2/2101", boardId1);
+        Card card2 = createAndInsertCard("Test card text2","1/1/2095", boardId1);
 
 
         String boardName2 = "Test board2";
         Long boardId2 = createBoard(userId, boardName2);
 
-        insertCardIntoBoard(boardId2, cardText1);
-        insertCardIntoBoard(boardId2, cardText2);
+        insertCardIntoBoard(boardId2, "Test card text3");
+        insertCardIntoBoard(boardId2, "Test card text4");
 
         h.close();
 
@@ -134,13 +117,25 @@ public class CardServiceIntegrationTest {
         JsonNodeFactory factory = JsonNodeFactory.instance;
         ArrayNode expectedCardArrayJson = new ArrayNode(factory);
 
-        ObjectNode row = createObjectNodeFromCard( card2, factory);
+        ObjectNode row = createObjectNodeFromCard(card2, factory);
         expectedCardArrayJson.add(row);
 
-        row = createObjectNodeFromCard(card1, factory );
+        row = createObjectNodeFromCard(card1, factory);
         expectedCardArrayJson.add(row);
 
         JSONAssert.assertEquals(  expectedCardArrayJson,  jsonResults );
+    }
+
+    private Card createAndInsertCard(String text, String postponedDate, Long boardId) {
+        Card card1 = new Card();
+        card1.setCardText(text);
+        card1.setPostponedDate(postponedDate);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("MM/dd/yyyy");
+        DateTime postponedDate1 = formatter.parseDateTime(card1.getPostponedDate());
+        Long cardId1 = insertPostponedCardIntoBoard(boardId, card1, new Date(postponedDate1.getMillis()));
+        card1.setId(cardId1);
+        return card1;
+
     }
 
     private String getJsonFromHttpResponse(HttpResponse httpResponse) throws IOException {
@@ -209,11 +204,11 @@ public class CardServiceIntegrationTest {
                     .first();
     }
 
-    private Long insertPostponedCardIntoBoard(Long boardId, String cardText, Date postponedDate) {
+    private Long insertPostponedCardIntoBoard(Long boardId, Card aCard, Date postponedDate) {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
 
-        h.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, cardText, cardLocation, boardId, postponedDate);
+        h.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, aCard.getCardText(), cardLocation, boardId, postponedDate);
 
         return cardId;
     }
