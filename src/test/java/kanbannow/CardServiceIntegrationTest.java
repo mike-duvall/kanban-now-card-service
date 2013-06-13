@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.yammer.dropwizard.config.ConfigurationException;
 import com.yammer.dropwizard.config.ConfigurationFactory;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
@@ -27,6 +28,7 @@ import org.skife.jdbi.v2.util.LongMapper;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Date;
@@ -84,10 +86,6 @@ public class CardServiceIntegrationTest {
     @Test
     public void shouldReturnOnlyPostponedCardsFromCorrectBoard() throws Exception {
 
-        ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
-        File configFile = new File(PROPERTIES_PATH + CARD_SERVICE_YML);
-        CardServiceConfiguration configuration = configurationFactory.build(configFile);
-        int port  = configuration.getHttpConfiguration().getPort();
 
         Long userId = createUser();
 
@@ -121,34 +119,16 @@ public class CardServiceIntegrationTest {
 
         h.close();
 
+        HttpResponse httpResponse = callCardService(boardId1);
+        assertStatusCodeIs200(httpResponse);
 
-        HttpClient httpclient = new DefaultHttpClient();
-
-//            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
-
-        String uri = "http://localhost:" + port + "/cards/board/" + boardId1;
-        HttpGet httpget = new HttpGet(uri);
-
-        System.out.println("executing request " + httpget.getURI());
-
-        HttpResponse httpResponse = httpclient.execute(httpget);
-        StatusLine statusLine = httpResponse.getStatusLine();
-        int statusCode = statusLine.getStatusCode();
-
-
-
-        assertThat(statusCode).isEqualTo(200);
-
-        InputStream inputStream = httpResponse.getEntity().getContent();
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String result = bufferedReader.readLine();
+        String result = getJsonFromHttpResponse(httpResponse);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonResults = mapper.readTree( result );
 
-        JsonNodeFactory factory = JsonNodeFactory.instance;
 
+        JsonNodeFactory factory = JsonNodeFactory.instance;
         ArrayNode expectedCardArrayJson = new ArrayNode(factory);
 
 
@@ -159,6 +139,31 @@ public class CardServiceIntegrationTest {
         expectedCardArrayJson.add(row);
 
         JSONAssert.assertEquals(  expectedCardArrayJson,  jsonResults );
+    }
+
+    private String getJsonFromHttpResponse(HttpResponse httpResponse) throws IOException {
+        InputStream inputStream = httpResponse.getEntity().getContent();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        return bufferedReader.readLine();
+    }
+
+    private void assertStatusCodeIs200(HttpResponse httpResponse) {
+        StatusLine statusLine = httpResponse.getStatusLine();
+        int statusCode = statusLine.getStatusCode();
+        assertThat(statusCode).isEqualTo(200);
+    }
+
+    private HttpResponse callCardService(Long boardId1) throws IOException, ConfigurationException {
+        ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
+        File configFile = new File(PROPERTIES_PATH + CARD_SERVICE_YML);
+        CardServiceConfiguration configuration = configurationFactory.build(configFile);
+        int port  = configuration.getHttpConfiguration().getPort();
+        HttpClient httpclient = new DefaultHttpClient();
+//            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
+        String uri = "http://localhost:" + port + "/cards/board/" + boardId1;
+        HttpGet httpget = new HttpGet(uri);
+        return httpclient.execute(httpget);
     }
 
     private ObjectNode createObjectNode(String cardText, int year, int month, int day, Long cardId, JsonNodeFactory factory) {
