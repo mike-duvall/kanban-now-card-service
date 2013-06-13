@@ -10,6 +10,7 @@ import com.yammer.dropwizard.config.ConfigurationFactory;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
 import com.yammer.dropwizard.validation.Validator;
+import kanbannow.core.Card;
 import net.sf.json.test.JSONAssert;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -19,6 +20,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -85,8 +88,6 @@ public class CardServiceIntegrationTest {
 
     @Test
     public void shouldReturnOnlyPostponedCardsFromCorrectBoard() throws Exception {
-
-
         Long userId = createUser();
 
         String boardName1 = "Test board1";
@@ -95,20 +96,22 @@ public class CardServiceIntegrationTest {
         String cardText1 = "Test card text1";
         String cardText2 = "Test card text2";
 
-        int year1 = 2101;
-        int month1 = 2;
-        int day1 = 2;
-
-        int year2 = 2095;
-        int month2 = 1;
-        int day2 = 1;
-
-
-        DateTime postponedDate1 = new DateTime(year1,month1,day1,0,0,0);
-        DateTime postponedDate2 = new DateTime(year2,month2,day2,0,0,0);
+        Card card1 = new Card();
+        card1.setCardText(cardText1);
+        card1.setPostponedDate("2/2/2101");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("MM/dd/yyyy");
+        DateTime postponedDate1 = formatter.parseDateTime(card1.getPostponedDate());
         Long cardId1 = insertPostponedCardIntoBoard(boardId1, cardText1, new Date(postponedDate1.getMillis()));
+        card1.setId(cardId1);
+
+
+        Card card2 = new Card();
+        card2.setCardText(cardText2);
+        card2.setPostponedDate("1/1/2095");
+        DateTime postponedDate2 = formatter.parseDateTime(card2.getPostponedDate());
         Long cardId2 = insertPostponedCardIntoBoard(boardId1, cardText2, new Date(postponedDate2.getMillis()));
         insertCardIntoBoard(boardId1, "non postponed card");
+        card2.setId(cardId2);
 
 
         String boardName2 = "Test board2";
@@ -131,11 +134,10 @@ public class CardServiceIntegrationTest {
         JsonNodeFactory factory = JsonNodeFactory.instance;
         ArrayNode expectedCardArrayJson = new ArrayNode(factory);
 
-
-        ObjectNode row = createObjectNode(cardText2, year2, month2, day2, cardId2, factory);
+        ObjectNode row = createObjectNodeFromCard( card2, factory);
         expectedCardArrayJson.add(row);
 
-        row = createObjectNode(cardText1, year1, month1, day1, cardId1, factory);
+        row = createObjectNodeFromCard(card1, factory );
         expectedCardArrayJson.add(row);
 
         JSONAssert.assertEquals(  expectedCardArrayJson,  jsonResults );
@@ -174,6 +176,16 @@ public class CardServiceIntegrationTest {
         row.put("postponedDate", expectedPostponedDateString2);
         return row;
     }
+
+    private ObjectNode createObjectNodeFromCard(Card card, JsonNodeFactory factory) {
+        ObjectNode row = new ObjectNode(factory);
+        Long cardIdLong = card.getId();
+        row.put("id", cardIdLong.intValue() );
+        row.put("cardText", card.getCardText() );
+        row.put("postponedDate", card.getPostponedDate() );
+        return row;
+    }
+
 
     private Long createBoard(Long userId, String boardName1) {
         h.execute("insert into board ( name, user_id) values (?, ?)", boardName1, userId);
