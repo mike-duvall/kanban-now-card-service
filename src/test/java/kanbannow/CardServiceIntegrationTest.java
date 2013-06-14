@@ -87,7 +87,7 @@ public class CardServiceIntegrationTest {
 
 
     @Test
-    public void shouldReturnOnlyPostponedCardsFromCorrectBoard() throws Exception {
+    public void shouldReturnOnlyPostponedCardsFromCorrectBoardSortedByPostponedDate() throws Exception {
         Long userId = createUser();
 
         String boardName1 = "Test board1";
@@ -108,12 +108,20 @@ public class CardServiceIntegrationTest {
         HttpResponse httpResponse = callCardService(boardId1);
         assertStatusCodeIs200(httpResponse);
 
+        JsonNode actualJsonResults = getJsonResults(httpResponse);
+        ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
+
+        JSONAssert.assertEquals(  expectedJsonResults,  actualJsonResults );
+    }
+
+    private JsonNode getJsonResults(HttpResponse httpResponse) throws IOException {
         String result = getJsonFromHttpResponse(httpResponse);
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonResults = mapper.readTree( result );
+        return mapper.readTree( result );
+    }
 
-
+    private ArrayNode createdExpectedJson(Card card1, Card card2) {
         JsonNodeFactory factory = JsonNodeFactory.instance;
         ArrayNode expectedCardArrayJson = new ArrayNode(factory);
 
@@ -122,8 +130,7 @@ public class CardServiceIntegrationTest {
 
         row = createObjectNodeFromCard(card1, factory);
         expectedCardArrayJson.add(row);
-
-        JSONAssert.assertEquals(  expectedCardArrayJson,  jsonResults );
+        return expectedCardArrayJson;
     }
 
     private Card createAndInsertCard(String text, String postponedDate, Long boardId) {
