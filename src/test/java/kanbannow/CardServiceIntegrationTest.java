@@ -86,37 +86,26 @@ public class CardServiceIntegrationTest {
     }
 
 
+    // CHECKSTYLE:OFF
     @Test
     public void shouldReturnOnlyPostponedCardsFromCorrectBoardSortedByPostponedDate() throws Exception {
         Long userId = createUser();
-
-        String boardName1 = "Test board1";
-        Long boardId1 = createBoard(userId, boardName1);
-
+        Long boardId1 = createBoard(userId, "Test board1");
         Card card1 = createAndInsertCard("Test card text1","2/2/2101", boardId1);
         Card card2 = createAndInsertCard("Test card text2","1/1/2095", boardId1);
-
-
-        String boardName2 = "Test board2";
-        Long boardId2 = createBoard(userId, boardName2);
-
+        Long boardId2 = createBoard(userId, "Test board2");
         insertCardIntoBoard(boardId2, "Test card text3");
         insertCardIntoBoard(boardId2, "Test card text4");
-
-        h.close();
-
         HttpResponse httpResponse = callCardService(boardId1);
         assertStatusCodeIs200(httpResponse);
-
         JsonNode actualJsonResults = getJsonResults(httpResponse);
         ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
-
         JSONAssert.assertEquals(  expectedJsonResults,  actualJsonResults );
     }
+    // CHECKSTYLE:ON
 
     private JsonNode getJsonResults(HttpResponse httpResponse) throws IOException {
         String result = getJsonFromHttpResponse(httpResponse);
-
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree( result );
     }
@@ -124,10 +113,9 @@ public class CardServiceIntegrationTest {
     private ArrayNode createdExpectedJson(Card card1, Card card2) {
         JsonNodeFactory factory = JsonNodeFactory.instance;
         ArrayNode expectedCardArrayJson = new ArrayNode(factory);
-
+        // Do card2 first, since it will be sorted as first item
         ObjectNode row = createObjectNodeFromCard(card2, factory);
         expectedCardArrayJson.add(row);
-
         row = createObjectNodeFromCard(card1, factory);
         expectedCardArrayJson.add(row);
         return expectedCardArrayJson;
@@ -142,7 +130,6 @@ public class CardServiceIntegrationTest {
         Long cardId1 = insertPostponedCardIntoBoard(boardId, card1, new Date(postponedDate1.getMillis()));
         card1.setId(cardId1);
         return card1;
-
     }
 
     private String getJsonFromHttpResponse(HttpResponse httpResponse) throws IOException {
@@ -158,26 +145,18 @@ public class CardServiceIntegrationTest {
         assertThat(statusCode).isEqualTo(200);
     }
 
+    //            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
     private HttpResponse callCardService(Long boardId1) throws IOException, ConfigurationException {
         ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
         File configFile = new File(PROPERTIES_PATH + CARD_SERVICE_YML);
         CardServiceConfiguration configuration = configurationFactory.build(configFile);
         int port  = configuration.getHttpConfiguration().getPort();
         HttpClient httpclient = new DefaultHttpClient();
-//            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
         String uri = "http://localhost:" + port + "/cards/board/" + boardId1;
         HttpGet httpget = new HttpGet(uri);
         return httpclient.execute(httpget);
     }
 
-    private ObjectNode createObjectNode(String cardText, int year, int month, int day, Long cardId, JsonNodeFactory factory) {
-        ObjectNode row = new ObjectNode(factory);
-        row.put("id", cardId.intValue());
-        row.put("cardText", cardText);
-        String expectedPostponedDateString2 = "" + month + FORWARD_SLASH + day + FORWARD_SLASH + year;
-        row.put("postponedDate", expectedPostponedDateString2);
-        return row;
-    }
 
     private ObjectNode createObjectNodeFromCard(Card card, JsonNodeFactory factory) {
         ObjectNode row = new ObjectNode(factory);

@@ -28,6 +28,9 @@ public class CardResource {
         this.databaseConfiguration = aDatabaseConfiguration;
     }
 
+
+
+
     @GET
     @Timed
     @Path("{id}")
@@ -36,9 +39,6 @@ public class CardResource {
         final String query =
                 "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = "
                         + boardId + " order by postponed_date";
-//        final String query =
-//                "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = "
-//                        + boardId;
         List<Card> cards = dbi.withHandle( createCallback(query) );
         return cards;
     }
