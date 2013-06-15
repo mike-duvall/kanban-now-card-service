@@ -33,6 +33,7 @@ repositories {
 dependencies {
     compile 'com.yammer.dropwizard:dropwizard-core:0.6.2'
     compile 'com.yammer.dropwizard:dropwizard-jdbi:0.6.2'
+    compile 'com.yammer.metrics:metrics-graphite:2.2.0'
     compile files('local-lib/ojdbc6_g.jar')
 
     testCompile 'org.kohsuke.stapler:json-lib:2.1-rev6'
