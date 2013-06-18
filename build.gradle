@@ -12,6 +12,7 @@ buildscript {
 
 apply plugin: 'shadow'
 
+version = ""
 
 shadow {
     exclude 'META-INF/*.DSA'
@@ -20,6 +21,15 @@ shadow {
     transformer (org.gradle.api.plugins.shadow.transformers.ServiceFileTransformer.class) {
 
     }
+
+    artifactAttached false
+
+    baseName 'kanban-now-card-service'
+}
+
+
+task shadowBuild(dependsOn: ["shadow", "check"]) << {
+
 }
 
 
