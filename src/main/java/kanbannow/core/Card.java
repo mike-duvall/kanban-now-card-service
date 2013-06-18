@@ -30,6 +30,8 @@ public class Card {
         this.cardText = aCardText;
     }
 
+    // TODO:  Currently returns string formatted mm/dd/yyyy
+    // Probably better to return Date and let caller format as desired
     public String getPostponedDate() {
         return postponedDate;
     }

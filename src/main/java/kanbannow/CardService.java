@@ -1,7 +1,7 @@
 package kanbannow;
 
 import com.yammer.metrics.reporting.GraphiteReporter;
-import kanbannow.health.TemplateHealthCheck;
+import kanbannow.health.CardServiceHealthCheck;
 import kanbannow.resources.CardResource;
 
 import com.yammer.dropwizard.Service;
@@ -24,7 +24,7 @@ public class CardService extends Service<CardServiceConfiguration> {
     @Override
     public void run(CardServiceConfiguration configuration, Environment environment) throws Exception {
         environment.addResource(new CardResource( configuration.getDatabase()));
-        environment.addHealthCheck(new TemplateHealthCheck("Make this a real healthCheck"));
+        environment.addHealthCheck(new CardServiceHealthCheck("Make this a real healthCheck"));
 
         GraphiteReporter.enable(15, TimeUnit.SECONDS, "carbon.hostedgraphite.com", 2003, "0cb986a9-f3e9-4292-8d08-0d3a759e448f");
 

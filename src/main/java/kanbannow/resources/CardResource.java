@@ -36,6 +36,7 @@ public class CardResource {
     @Path("{id}")
     public List<Card> getCards(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) throws IOException, ClassNotFoundException {
         DBI dbi = initializeDbi();
+        // TODO:  Using manually constructed SQL query for now.  Will consider moving to JDBI SQL Objects API as implementation proceeds
         final String query =
                 "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = "
                         + boardId + " order by postponed_date";
@@ -54,6 +55,8 @@ public class CardResource {
     }
 
     private DBI initializeDbi() throws ClassNotFoundException {
+        // TODO:  Seems a little hokey to have to force loading the jdbc driver class this way.
+        // Need to investigate alternative
         String databaseDriverClassName = databaseConfiguration.getDriverClass();
         Class.forName(databaseDriverClassName);
         String dataSourceUrl = databaseConfiguration.getUrl();

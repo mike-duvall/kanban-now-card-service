@@ -2,10 +2,10 @@ package kanbannow.health;
 
 import com.yammer.metrics.core.HealthCheck;
 
-public class TemplateHealthCheck extends HealthCheck {
+public class CardServiceHealthCheck extends HealthCheck {
     private final String template;
 
-    public TemplateHealthCheck(String aTemplate) {
+    public CardServiceHealthCheck(String aTemplate) {
         super("template");
         this.template = aTemplate;
     }

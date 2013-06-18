@@ -13,7 +13,6 @@
   <module name="TreeWalker">
     <property name="severity" value="error"/>
     <module name="FileContentsHolder"/>
-    <module name="TodoComment"/>
     <module name="UnnecessaryParentheses"/>
     <module name="VisibilityModifier"/>
     <module name="AvoidStarImport">
