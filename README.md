@@ -3,16 +3,19 @@
 
 This is a basic service for handling Kanban cards for my web app I'm calling KanbanNow.
 
-It's currently only for my personal use and use by a few beta testers.
+KanbanNow is currently only for my personal use and use by a few beta testers.
+
+I have a version of KanbanNow that is working, but it's a monolithic design with all
+
+functionality in one WAR file.
 
 
-This is my first foray into building a microservice.
+Over time I am migrating the service functionality into separate micro-services.
 
-The current implementation returns only the postponed cards for a specific board.
-
-I will be adding more functionality soon and over time.
+This service is the first such service.
 
 
-## Notes
+The current implementation only handles card postponement functionality.
 
-This service was originally cloned from: https://github.com/liorhar/dropwizard-gradle
+
+
