@@ -1,7 +1,7 @@
 <project>
 
 
-    <!-- Using and build.xml to spawn and kill process, since spawning
+    <!-- Using ant build.xml to spawn and kill process, since spawning
        a process with gradle is not so straightforward.
        Also, the production servers are AWS EC2 micro-instances, and are
        severely resource constrained.  Using ant for this
