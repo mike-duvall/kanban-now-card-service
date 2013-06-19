@@ -18,4 +18,23 @@ This service is the first such service.
 The current implementation only handles card postponement functionality.
 
 
+##Usage
+
+Build the executable jar with:
+
+gradle shadowBuild
+
+Run with:
+
+java -jar build/libs/kanban-now-card-service.jar server {properties file}
+
+
+
+Rest(like) Interface:
+
+    * To retrieve a list of postponed cards for a specific board
+
+        GET /cards/board/{boardId}
+
+
 
