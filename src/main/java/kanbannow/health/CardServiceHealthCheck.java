@@ -1,21 +1,27 @@
 package kanbannow.health;
 
+import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.metrics.core.HealthCheck;
+import org.skife.jdbi.v2.DBI;
 
 public class CardServiceHealthCheck extends HealthCheck {
-    private final String template;
 
-    public CardServiceHealthCheck(String aTemplate) {
-        super("template");
-        this.template = aTemplate;
+
+    DatabaseConfiguration databaseConfiguration;
+
+    public CardServiceHealthCheck(DatabaseConfiguration aDatabaseConfiguration) {
+        super("cardService");
+        this.databaseConfiguration = aDatabaseConfiguration;
     }
 
     @Override
     protected Result check() throws Exception {
-//        final String saying = String.format(template, "TEST");
-//        if (!saying.contains("TEST")) {
-//            return Result.unhealthy("template doesn't include a name");
-//        }
+        String databaseDriverClassName = databaseConfiguration.getDriverClass();
+        Class.forName(databaseDriverClassName);
+        String dataSourceUrl = databaseConfiguration.getUrl();
+        String dataSourceUsername = databaseConfiguration.getUser();
+        String dataSourcePassword = databaseConfiguration.getPassword();
+        new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
         return Result.healthy();
     }
 }

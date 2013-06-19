@@ -17,27 +17,5 @@ public class CardServiceConfiguration extends Configuration {
     public DatabaseConfiguration getDatabase() {
         return database;
     }
-//
-//
-////    @Valid
-////    @NotNull
-////    @JsonProperty
-////    private RequestLogConfiguration requestLog = new RequestLogConfiguration();
-////
-////
-////    public RequestLogConfiguration getRequestLog() {
-////        return requestLog;
-////    }
-//
-//
-//
-//    @Valid
-//    @NotNull
-//    @JsonProperty
-//    private LoggingConfiguration logging = new LoggingConfiguration();
-//
-//
-//    public LoggingConfiguration getLogging() {
-//        return logging;
-//    }
+
 }
