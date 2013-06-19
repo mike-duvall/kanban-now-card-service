@@ -7,7 +7,7 @@ import org.skife.jdbi.v2.DBI;
 public class CardServiceHealthCheck extends HealthCheck {
 
 
-    DatabaseConfiguration databaseConfiguration;
+    private DatabaseConfiguration databaseConfiguration;
 
     public CardServiceHealthCheck(DatabaseConfiguration aDatabaseConfiguration) {
         super("cardService");
