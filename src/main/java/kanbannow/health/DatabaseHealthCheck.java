@@ -4,12 +4,12 @@ import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.metrics.core.HealthCheck;
 import org.skife.jdbi.v2.DBI;
 
-public class CardServiceHealthCheck extends HealthCheck {
+public class DatabaseHealthCheck extends HealthCheck {
 
 
     private DatabaseConfiguration databaseConfiguration;
 
-    public CardServiceHealthCheck(DatabaseConfiguration aDatabaseConfiguration) {
+    public DatabaseHealthCheck(DatabaseConfiguration aDatabaseConfiguration) {
         super("cardService");
         this.databaseConfiguration = aDatabaseConfiguration;
     }
