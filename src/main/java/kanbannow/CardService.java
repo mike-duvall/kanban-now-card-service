@@ -1,5 +1,6 @@
 package kanbannow;
 
+import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.metrics.reporting.GraphiteReporter;
 import kanbannow.health.DatabaseHealthCheck;
 import kanbannow.resources.CardResource;
@@ -7,6 +8,7 @@ import kanbannow.resources.CardResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
+import org.skife.jdbi.v2.DBI;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,11 +25,11 @@ public class CardService extends Service<CardServiceConfiguration> {
 
     @Override
     public void run(CardServiceConfiguration configuration, Environment environment) throws Exception {
-        environment.addResource(new CardResource( configuration.getDatabase()));
+        final DBIFactory factory = new DBIFactory();
+        final DBI jdbi = factory.build(environment, configuration.getDatabase(), "oracle");
+        environment.addResource(new CardResource( jdbi ));
         environment.addHealthCheck(new DatabaseHealthCheck(configuration.getDatabase()));
-
         GraphiteReporter.enable(15, TimeUnit.SECONDS, "carbon.hostedgraphite.com", 2003, "0cb986a9-f3e9-4292-8d08-0d3a759e448f");
-
     }
 
 
