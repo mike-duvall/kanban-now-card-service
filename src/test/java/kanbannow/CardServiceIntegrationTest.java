@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yammer.dropwizard.config.ConfigurationException;
 import com.yammer.dropwizard.config.ConfigurationFactory;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
+import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
 import com.yammer.dropwizard.validation.Validator;
 import kanbannow.core.Card;
@@ -61,20 +62,13 @@ public class CardServiceIntegrationTest {
 
     @Before
     public void before() throws Exception {
-        DBI dbi = initializeDB();
+        final DBIFactory factory = new DBIFactory();
+        CardServiceConfiguration cardServiceConfiguration = serviceRule.getConfiguration();
+        DatabaseConfiguration databaseConfiguration = cardServiceConfiguration.getDatabase();
+        final DBI dbi = factory.build(serviceRule.getEnvironment(), databaseConfiguration, "oracle");
         cleanupDbData(dbi);
     }
 
-    private DBI initializeDB() throws ClassNotFoundException {
-        CardServiceConfiguration cardServiceConfiguration = serviceRule.getConfiguration();
-        DatabaseConfiguration databaseConfiguration = cardServiceConfiguration.getDatabase();
-        String databaseDriverClassName = databaseConfiguration.getDriverClass();
-        Class.forName(databaseDriverClassName);
-        String dataSourceUrl = databaseConfiguration.getUrl();
-        String dataSourceUsername = databaseConfiguration.getUser();
-        String dataSourcePassword = databaseConfiguration.getPassword();
-        return new DBI(dataSourceUrl, dataSourceUsername, dataSourcePassword );
-    }
 
     private void cleanupDbData(DBI dbi) {
         h = dbi.open();
@@ -169,6 +163,7 @@ public class CardServiceIntegrationTest {
 
 
     private Long createBoard(Long userId, String boardName1) {
+
         h.execute("insert into board ( name, user_id) values (?, ?)", boardName1, userId);
         return h.createQuery("select id from board where name = '" + boardName1 + SINGLE_QUOTE)
                 .map(LongMapper.FIRST)
