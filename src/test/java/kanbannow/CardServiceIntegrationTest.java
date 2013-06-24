@@ -46,7 +46,6 @@ public class CardServiceIntegrationTest {
 
     public static final String PROPERTIES_PATH = "../properties/";
     public static final String CARD_SERVICE_YML = "card-service.yml";
-    public static final String FORWARD_SLASH = "/";
     public static final String SINGLE_QUOTE = "'";
     private Handle h;
     private BoardDAO boardDAO;
@@ -165,13 +164,12 @@ public class CardServiceIntegrationTest {
     }
 
 
-    private Long createBoard(Long userId, String boardName1) {
-
-        h.execute("insert into board ( name, user_id) values (?, ?)", boardName1, userId);
-        return h.createQuery("select id from board where name = '" + boardName1 + SINGLE_QUOTE)
-                .map(LongMapper.FIRST)
-                .first();
+    private Long createBoard(Long userId, String boardName) {
+        boardDAO.createBoard( boardName, userId);
+        return boardDAO.findBoardWithName(boardName);
     }
+
+
 
     private Long insertCardIntoBoard(Long boardId, String cardText) {
         long cardLocation = 1;
