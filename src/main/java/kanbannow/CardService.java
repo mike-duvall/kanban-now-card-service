@@ -1,6 +1,7 @@
 package kanbannow;
 
 import com.yammer.dropwizard.jdbi.DBIFactory;
+import com.yammer.dropwizard.jdbi.bundles.DBIExceptionsBundle;
 import com.yammer.metrics.reporting.GraphiteReporter;
 import kanbannow.health.DatabaseHealthCheck;
 import kanbannow.resources.CardResource;
@@ -21,6 +22,7 @@ public class CardService extends Service<CardServiceConfiguration> {
     @Override
     public void initialize(Bootstrap<CardServiceConfiguration> bootstrap) {
         bootstrap.setName("hello-world");
+        bootstrap.addBundle(new DBIExceptionsBundle());
     }
 
     @Override
