@@ -22,7 +22,7 @@ public class CardService extends Service<CardServiceConfiguration> {
 
     @Override
     public void initialize(Bootstrap<CardServiceConfiguration> bootstrap) {
-        bootstrap.setName("hello-world");
+        bootstrap.setName("card-service");
         bootstrap.addBundle(new DBIExceptionsBundle());
     }
 
