@@ -10,8 +10,7 @@ import java.sql.SQLException;
 
 public class CardMapper implements ResultSetMapper<Card>
 {
-    public Card map(int index, ResultSet r, StatementContext ctx) throws SQLException
-    {
+    public Card map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         Card newCard = new Card();
         newCard.setId(r.getLong("id"));
         newCard.setCardText(r.getString("cardText"));

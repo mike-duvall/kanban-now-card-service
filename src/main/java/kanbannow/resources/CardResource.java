@@ -28,7 +28,7 @@ public class CardResource {
     @GET
     @Timed
     @Path("{id}")
-    public List<Card> getCards(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) throws IOException, ClassNotFoundException {
+    public List<Card> getCards(@PathParam("id") int boardId) throws IOException, ClassNotFoundException {
         List<Card> cardList = cardDAO.getPostponedCardForBoard(boardId);
         return cardList;
     }
