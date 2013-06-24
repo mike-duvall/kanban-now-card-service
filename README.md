@@ -1,7 +1,7 @@
 # Kanban Now Card Service
 
 
-This is a basic service for handling Kanban cards for my web app I'm calling KanbanNow.
+This is a basic service for handling Kanban cards for KanbanNow, my personal Kanban web app.
 
 KanbanNow is currently only for my personal use and use by a few beta testers.
 
@@ -15,7 +15,7 @@ Over time I am migrating the service functionality into separate micro-services.
 This service is the first such service.
 
 
-The current implementation only handles card postponement functionality.
+The current implementation of the card-service only handles card postponement functionality.
 
 
 ##Usage
