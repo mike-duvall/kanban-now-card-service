@@ -1,7 +1,6 @@
 package kanbannow.resources;
 
 import kanbannow.core.Card;
-import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
 import kanbannow.jdbi.CardDAO;
 
@@ -10,7 +9,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
