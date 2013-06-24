@@ -12,6 +12,7 @@ import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
 import com.yammer.dropwizard.validation.Validator;
 import kanbannow.core.Card;
+import kanbannow.jdbi.BoardDAO;
 import net.sf.json.test.JSONAssert;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -48,6 +49,7 @@ public class CardServiceIntegrationTest {
     public static final String FORWARD_SLASH = "/";
     public static final String SINGLE_QUOTE = "'";
     private Handle h;
+    private BoardDAO boardDAO;
 
 
 
@@ -66,6 +68,7 @@ public class CardServiceIntegrationTest {
         CardServiceConfiguration cardServiceConfiguration = serviceRule.getConfiguration();
         DatabaseConfiguration databaseConfiguration = cardServiceConfiguration.getDatabase();
         final DBI dbi = factory.build(serviceRule.getEnvironment(), databaseConfiguration, "oracle");
+        boardDAO = dbi.onDemand(BoardDAO.class);
         cleanupDbData(dbi);
     }
 
@@ -73,7 +76,7 @@ public class CardServiceIntegrationTest {
     private void cleanupDbData(DBI dbi) {
         h = dbi.open();
         h.execute("delete from card");
-        h.execute("delete from board");
+        boardDAO.deleteAllBoards();
         h.execute("delete from authorities");
         h.execute("delete from user_feature_toggle");
         h.execute("delete from users");
