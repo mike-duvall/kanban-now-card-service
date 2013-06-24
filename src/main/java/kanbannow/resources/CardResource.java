@@ -3,10 +3,7 @@ package kanbannow.resources;
 import kanbannow.core.Card;
 import com.google.common.base.Optional;
 import com.yammer.metrics.annotation.Timed;
-import org.skife.jdbi.v2.BeanMapper;
-import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.tweak.HandleCallback;
+import kanbannow.jdbi.CardDAO;
 
 
 import javax.ws.rs.GET;
@@ -21,34 +18,19 @@ import java.util.List;
 @Path("/cards/board")
 @Produces(MediaType.APPLICATION_JSON)
 public class CardResource {
-    private final DBI jdbi;
+    private CardDAO cardDAO;
 
 
-
-    public CardResource( DBI aDBI) {
-        this.jdbi = aDBI;
+    public CardResource(CardDAO aCardDAO) {
+        this.cardDAO = aCardDAO;
     }
-
 
     @GET
     @Timed
     @Path("{id}")
     public List<Card> getCards(@PathParam("id") int boardId, @QueryParam("name") Optional<String> name) throws IOException, ClassNotFoundException {
-        // TODO:  Using manually constructed SQL query for now.  Will consider moving to JDBI SQL Objects API as implementation proceeds
-        final String query =
-                "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = "
-                        + boardId + " order by postponed_date";
-        List<Card> cards = jdbi.withHandle( createCallback(query) );
-        return cards;
+        List<Card> cardList = cardDAO.getPostponedCardForBoard(boardId);
+        return cardList;
     }
 
-    private HandleCallback<List<Card>> createCallback(final String query) {
-        return new HandleCallback<List<Card>>() {
-            public List<Card> withHandle(Handle h) {
-                return h.createQuery(query)
-                        .map(new BeanMapper<Card>(Card.class)).list();
-            }
-        };
-
-    }
 }
