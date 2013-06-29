@@ -73,14 +73,13 @@ public class CardServiceIntegrationTest {
         boardDAO.deleteAllBoards();
         h.execute("delete from authorities");
         h.execute("delete from user_feature_toggle");
-        h.execute("delete from users");
     }
 
 
     // CHECKSTYLE:OFF
     @Test
     public void shouldReturnOnlyPostponedCardsFromCorrectBoardSortedByPostponedDate() throws Exception {
-        Long userId = createUser();
+        Long userId = queryTestUserId();
         Long boardId1 = createBoard(userId, "Test board1");
         Card card1 = createAndInsertCard("Test card text1","2/2/2101", boardId1);
         Card card2 = createAndInsertCard("Test card text2","1/1/2095", boardId1);
@@ -189,12 +188,11 @@ public class CardServiceIntegrationTest {
     }
 
 
-    private Long createUser() {
-        String username = "ted";
-        h.execute("insert into users (username, password) values ( ?, ?)", username, "password");
-        return h.createQuery("select id from users where username = '" + username + SINGLE_QUOTE)
+    private Long queryTestUserId() {
+        return h.createQuery("select id from users where username = 'CardServiceTestUser1' ")
                 .map(LongMapper.FIRST)
                 .first();
+
     }
 
 
