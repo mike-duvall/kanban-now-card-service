@@ -6,11 +6,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yammer.dropwizard.config.ConfigurationException;
-import com.yammer.dropwizard.config.ConfigurationFactory;
 import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
-import com.yammer.dropwizard.validation.Validator;
 import kanbannow.core.Card;
 import kanbannow.jdbi.BoardDAO;
 import net.sf.json.test.JSONAssert;
@@ -19,8 +17,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -32,7 +28,6 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.LongMapper;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -101,7 +96,7 @@ public class CardServiceIntegrationTest {
     // CHECKSTYLE:ON
 
     private JsonNode getJsonResults(HttpResponse httpResponse) throws IOException {
-        String result = getJsonFromHttpResponse(httpResponse);
+        String result = getStringFromHttpResponse(httpResponse);
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree( result );
     }
@@ -128,7 +123,7 @@ public class CardServiceIntegrationTest {
         return card1;
     }
 
-    private String getJsonFromHttpResponse(HttpResponse httpResponse) throws IOException {
+    private String getStringFromHttpResponse(HttpResponse httpResponse) throws IOException {
         InputStream inputStream = httpResponse.getEntity().getContent();
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -143,9 +138,7 @@ public class CardServiceIntegrationTest {
 
     //            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
     private HttpResponse callCardService(Long boardId1) throws IOException, ConfigurationException {
-        ConfigurationFactory<CardServiceConfiguration> configurationFactory = ConfigurationFactory.forClass(CardServiceConfiguration.class, new Validator());
-        File configFile = new File(PROPERTIES_PATH + CARD_SERVICE_YML);
-        CardServiceConfiguration configuration = configurationFactory.build(configFile);
+        CardServiceConfiguration configuration = serviceRule.getConfiguration();
         int port  = configuration.getHttpConfiguration().getPort();
         HttpClient httpclient = new DefaultHttpClient();
         String uri = "http://localhost:" + port + "/cards/board/" + boardId1;
