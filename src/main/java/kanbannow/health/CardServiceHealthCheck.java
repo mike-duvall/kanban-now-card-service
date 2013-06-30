@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yammer.dropwizard.config.ConfigurationException;
 import com.yammer.dropwizard.config.Environment;
-import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.metrics.core.HealthCheck;
 import kanbannow.CardServiceConfiguration;
 import kanbannow.core.Card;
@@ -37,7 +36,7 @@ public class CardServiceHealthCheck extends HealthCheck {
 
 
     private CardServiceConfiguration cardServiceConfiguration;
-    private Environment environment;
+//    private Environment environment;
     private Handle databaseHandle;
 
 
@@ -50,7 +49,7 @@ public class CardServiceHealthCheck extends HealthCheck {
 
     public CardServiceHealthCheck(Environment anEnvironment, CardServiceConfiguration aCardServiceConfiguration, DBI aDBI) {
         super("cardService");
-        this.environment = anEnvironment;
+//        this.environment = anEnvironment;
         this.cardServiceConfiguration = aCardServiceConfiguration;
         this.databaseHandle = aDBI.open();
     }
@@ -59,11 +58,11 @@ public class CardServiceHealthCheck extends HealthCheck {
     @Override
     protected Result check() throws Exception {
 
-        final DBIFactory factory = new DBIFactory();
-        final DBI dbi = factory.build(environment, cardServiceConfiguration.getDatabase(), "oracle");
+//        final DBIFactory factory = new DBIFactory();
+//        final DBI dbi = factory.build(environment, cardServiceConfiguration.getDatabase(), "oracle");
         try{
 //            databaseHandle = dbi.open();
-            cleanupDbData(dbi);
+            cleanupDbData();
             Long boardId1 = 1L;
             Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
             Card card2 = createAndInsertPostponedCard(CARD_2_TEXT, "1/1/2095", boardId1);
@@ -178,7 +177,7 @@ public class CardServiceHealthCheck extends HealthCheck {
 
 
     // CHECKSTYLE:OFF
-    private void cleanupDbData(DBI dbi) {
+    private void cleanupDbData() {
 
         databaseHandle.execute("delete from card where text ='" + CARD_1_TEXT + "'");
         databaseHandle.execute("delete from card where text ='" + CARD_2_TEXT + "'");
