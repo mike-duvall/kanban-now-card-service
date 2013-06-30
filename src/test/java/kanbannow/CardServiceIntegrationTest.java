@@ -10,7 +10,6 @@ import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
 import kanbannow.core.Card;
-import kanbannow.jdbi.BoardDAO;
 import net.sf.json.test.JSONAssert;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -67,7 +66,7 @@ public class CardServiceIntegrationTest {
         cleanupDbData(dbi);
     }
 
-
+    // CHECKSTYLE:OFF
     private void cleanupDbData(DBI dbi) {
         h = dbi.open();
         h.execute("delete from card where text ='" + CARD_1_TEXT + "'");
@@ -75,6 +74,7 @@ public class CardServiceIntegrationTest {
         h.execute("delete from card where text ='" + CARD_3_TEXT + "'");
         h.execute("delete from card where text ='" + CARD_4_TEXT + "'");
     }
+    // CHECKSTYLE:ON
 
 
     // CHECKSTYLE:OFF
