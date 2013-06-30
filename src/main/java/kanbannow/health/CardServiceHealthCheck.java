@@ -20,8 +20,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.util.LongMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,51 +32,37 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class CardServiceHealthCheck extends HealthCheck {
 
-
-    private CardServiceConfiguration cardServiceConfiguration;
-    private Handle databaseHandle;
-    private DBI dbi;
-
-
     public static final String CARD_1_TEXT = "zzzTest card text1zzz";
     public static final String CARD_2_TEXT = "zzzTest card text2zzz";
     public static final String CARD_3_TEXT = "zzzTest card text3zzz";
     public static final String CARD_4_TEXT = "zzzTest card text4zzz";
+
+    private CardServiceConfiguration cardServiceConfiguration;
     private CardDAO cardDao;
 
 
-    public CardServiceHealthCheck(CardServiceConfiguration aCardServiceConfiguration, DBI aDBI, CardDAO aCardDAO) {
+    public CardServiceHealthCheck(CardServiceConfiguration aCardServiceConfiguration,  CardDAO aCardDAO) {
         super("cardService");
         this.cardServiceConfiguration = aCardServiceConfiguration;
-        this.dbi = aDBI;
         this.cardDao = aCardDAO;
     }
 
     // CHECKSTYLE:OFF
     @Override
     protected Result check() throws Exception {
-
-        try{
-            this.databaseHandle = dbi.open();
-
-            cleanupDbData();
-            Long boardId1 = 1L;
-            Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
-            Card card2 = createAndInsertPostponedCard(CARD_2_TEXT, "1/1/2095", boardId1);
-            Long boardId2 = 2L;
-            insertCardIntoBoard(boardId2, CARD_3_TEXT);
-            insertCardIntoBoard(boardId2, CARD_4_TEXT);
-            HttpResponse httpResponse = callCardService(boardId1);
-            assertStatusCodeIs200(httpResponse);
-            JsonNode actualJsonResults = getJsonResults(httpResponse);
-            ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
-            JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
-            return Result.healthy();
-        }
-        finally {
-            // This is hacky.  Need to switch to using a DAO
-            databaseHandle.close();
-        }
+        cleanupDbData();
+        Long boardId1 = 1L;
+        Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
+        Card card2 = createAndInsertPostponedCard(CARD_2_TEXT, "1/1/2095", boardId1);
+        Long boardId2 = 2L;
+        insertCardIntoBoard(boardId2, CARD_3_TEXT);
+        insertCardIntoBoard(boardId2, CARD_4_TEXT);
+        HttpResponse httpResponse = callCardService(boardId1);
+        assertStatusCodeIs200(httpResponse);
+        JsonNode actualJsonResults = getJsonResults(httpResponse);
+        ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
+        JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
+        return Result.healthy();
     }
     // CHECKSTYLE:ON
 
@@ -139,11 +123,7 @@ public class CardServiceHealthCheck extends HealthCheck {
     private Long insertCardIntoBoard(Long boardId, String cardText) {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
-
-        cardDao.insertCardWithoutPostponedDate(boardId, cardId, cardText, cardLocation );
-
-//        databaseHandle.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId, cardText, cardLocation, boardId);
-
+        cardDao.insertCardWithoutPostponedDate(boardId, cardId, cardText, cardLocation);
         return cardId;
     }
 
@@ -169,9 +149,7 @@ public class CardServiceHealthCheck extends HealthCheck {
 
 
     private Long getNextCardIdFromSequence() {
-        return databaseHandle.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
-                .map(LongMapper.FIRST)
-                .first();
+        return cardDao.getNextCardIdFromSequence();
     }
 
 

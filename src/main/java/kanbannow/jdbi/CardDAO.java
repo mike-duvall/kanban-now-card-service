@@ -37,4 +37,7 @@ public interface CardDAO {
             @Bind("cardText") String cardText,
             @Bind("cardLocation") Long cardLocation);
 
+
+    @SqlQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
+    Long getNextCardIdFromSequence();
 }
