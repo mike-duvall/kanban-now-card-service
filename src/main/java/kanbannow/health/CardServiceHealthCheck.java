@@ -48,10 +48,11 @@ public class CardServiceHealthCheck extends HealthCheck {
 
 
 
-    public CardServiceHealthCheck(Environment anEnvironment, CardServiceConfiguration aCardServiceConfiguration) {
+    public CardServiceHealthCheck(Environment anEnvironment, CardServiceConfiguration aCardServiceConfiguration, DBI aDBI) {
         super("cardService");
         this.environment = anEnvironment;
         this.cardServiceConfiguration = aCardServiceConfiguration;
+        this.databaseHandle = aDBI.open();
     }
 
     // CHECKSTYLE:OFF
@@ -61,7 +62,7 @@ public class CardServiceHealthCheck extends HealthCheck {
         final DBIFactory factory = new DBIFactory();
         final DBI dbi = factory.build(environment, cardServiceConfiguration.getDatabase(), "oracle");
         try{
-            databaseHandle = dbi.open();
+//            databaseHandle = dbi.open();
             cleanupDbData(dbi);
             Long boardId1 = 1L;
             Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
