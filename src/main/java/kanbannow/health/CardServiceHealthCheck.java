@@ -9,6 +9,7 @@ import com.yammer.dropwizard.config.ConfigurationException;
 import com.yammer.metrics.core.HealthCheck;
 import kanbannow.CardServiceConfiguration;
 import kanbannow.core.Card;
+import kanbannow.jdbi.CardDAO;
 import net.sf.json.test.JSONAssert;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -43,13 +44,14 @@ public class CardServiceHealthCheck extends HealthCheck {
     public static final String CARD_2_TEXT = "zzzTest card text2zzz";
     public static final String CARD_3_TEXT = "zzzTest card text3zzz";
     public static final String CARD_4_TEXT = "zzzTest card text4zzz";
+    private CardDAO cardDao;
 
 
-
-    public CardServiceHealthCheck(CardServiceConfiguration aCardServiceConfiguration, DBI aDBI) {
+    public CardServiceHealthCheck(CardServiceConfiguration aCardServiceConfiguration, DBI aDBI, CardDAO aCardDAO) {
         super("cardService");
         this.cardServiceConfiguration = aCardServiceConfiguration;
         this.dbi = aDBI;
+        this.cardDao = aCardDAO;
     }
 
     // CHECKSTYLE:OFF
@@ -177,10 +179,14 @@ public class CardServiceHealthCheck extends HealthCheck {
     private void cleanupDbData() {
 
 
-        databaseHandle.execute("delete from card where text ='" + CARD_1_TEXT + "'");
-        databaseHandle.execute("delete from card where text ='" + CARD_2_TEXT + "'");
-        databaseHandle.execute("delete from card where text ='" + CARD_3_TEXT + "'");
-        databaseHandle.execute("delete from card where text ='" + CARD_4_TEXT + "'");
+        cardDao.deleteCardWithText(CARD_1_TEXT);
+        cardDao.deleteCardWithText(CARD_2_TEXT);
+        cardDao.deleteCardWithText(CARD_3_TEXT);
+        cardDao.deleteCardWithText(CARD_4_TEXT);
+//        databaseHandle.execute("delete from card where text ='" + CARD_1_TEXT + "'");
+//        databaseHandle.execute("delete from card where text ='" + CARD_2_TEXT + "'");
+//        databaseHandle.execute("delete from card where text ='" + CARD_3_TEXT + "'");
+//        databaseHandle.execute("delete from card where text ='" + CARD_4_TEXT + "'");
     }
     // CHECKSTYLE:ON
 
