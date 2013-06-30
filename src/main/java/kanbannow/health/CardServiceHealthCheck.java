@@ -22,9 +22,9 @@ public class CardServiceHealthCheck extends HealthCheck {
 
 
 
-    public CardServiceHealthCheck(Environment environment, DatabaseConfiguration aDatabaseConfiguration) {
+    public CardServiceHealthCheck(Environment anEnvironment, DatabaseConfiguration aDatabaseConfiguration) {
         super("cardService");
-        this.environment = environment;
+        this.environment = anEnvironment;
         this.databaseConfiguration = aDatabaseConfiguration;
     }
 
