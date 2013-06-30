@@ -1,39 +1,40 @@
 package kanbannow;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.yammer.dropwizard.config.ConfigurationException;
-import com.yammer.dropwizard.db.DatabaseConfiguration;
-import com.yammer.dropwizard.jdbi.DBIFactory;
-import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
-import kanbannow.core.Card;
-import net.sf.json.test.JSONAssert;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.junit.Before;
-import org.junit.Rule;
+//import com.fasterxml.jackson.databind.JsonNode;
+//import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.node.ArrayNode;
+//import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+//import com.fasterxml.jackson.databind.node.ObjectNode;
+//import com.yammer.dropwizard.config.ConfigurationException;
+//import com.yammer.dropwizard.db.DatabaseConfiguration;
+//import com.yammer.dropwizard.jdbi.DBIFactory;
+//import com.yammer.dropwizard.testing.junit.DropwizardServiceRule;
+//import kanbannow.core.Card;
+//import net.sf.json.test.JSONAssert;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.StatusLine;
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.client.methods.HttpGet;
+//import org.apache.http.impl.client.DefaultHttpClient;
+//import org.joda.time.DateTime;
+//import org.joda.time.format.DateTimeFormat;
+//import org.joda.time.format.DateTimeFormatter;
+//import org.junit.Before;
+//import org.junit.Rule;
+
+//import org.skife.jdbi.v2.DBI;
+//import org.skife.jdbi.v2.Handle;
+//import org.skife.jdbi.v2.util.LongMapper;
+//
+//import java.io.BufferedReader;
+//import java.io.IOException;
+//import java.io.InputStream;
+//import java.io.InputStreamReader;
+//import java.sql.Date;
+//
+//import static org.fest.assertions.Assertions.assertThat;
+
 import org.junit.Test;
-import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.util.LongMapper;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Date;
-
-import static org.fest.assertions.Assertions.assertThat;
-
 
 public class CardServiceIntegrationTest {
 
