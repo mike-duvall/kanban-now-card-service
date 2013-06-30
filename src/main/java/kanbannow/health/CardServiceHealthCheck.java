@@ -54,6 +54,7 @@ public class CardServiceHealthCheck extends HealthCheck {
         this.cardServiceConfiguration = aCardServiceConfiguration;
     }
 
+    // CHECKSTYLE:OFF
     @Override
     protected Result check() throws Exception {
         final DBIFactory factory = new DBIFactory();
@@ -71,9 +72,9 @@ public class CardServiceHealthCheck extends HealthCheck {
         JsonNode actualJsonResults = getJsonResults(httpResponse);
         ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
         JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
-
         return Result.healthy();
     }
+    // CHECKSTYLE:ON
 
     private JsonNode getJsonResults(HttpResponse httpResponse) throws IOException {
         String result = getStringFromHttpResponse(httpResponse);
