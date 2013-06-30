@@ -1,10 +1,22 @@
 package kanbannow.health;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.yammer.dropwizard.config.ConfigurationException;
 import com.yammer.dropwizard.config.Environment;
-import com.yammer.dropwizard.db.DatabaseConfiguration;
 import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.metrics.core.HealthCheck;
+import kanbannow.CardServiceConfiguration;
 import kanbannow.core.Card;
+import net.sf.json.test.JSONAssert;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -12,12 +24,19 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.LongMapper;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Date;
+
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class CardServiceHealthCheck extends HealthCheck {
 
 
-    private DatabaseConfiguration databaseConfiguration;
+    private CardServiceConfiguration cardServiceConfiguration;
     private Environment environment;
     private Handle databaseHandle;
 
@@ -29,22 +48,94 @@ public class CardServiceHealthCheck extends HealthCheck {
 
 
 
-    public CardServiceHealthCheck(Environment anEnvironment, DatabaseConfiguration aDatabaseConfiguration) {
+    public CardServiceHealthCheck(Environment anEnvironment, CardServiceConfiguration aCardServiceConfiguration) {
         super("cardService");
         this.environment = anEnvironment;
-        this.databaseConfiguration = aDatabaseConfiguration;
+        this.cardServiceConfiguration = aCardServiceConfiguration;
     }
 
     @Override
     protected Result check() throws Exception {
         final DBIFactory factory = new DBIFactory();
-        final DBI dbi = factory.build(environment, databaseConfiguration, "oracle");
+        final DBI dbi = factory.build(environment, cardServiceConfiguration.getDatabase(), "oracle");
         databaseHandle = dbi.open();
         cleanupDbData(dbi);
         Long boardId1 = 1L;
         Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
         Card card2 = createAndInsertPostponedCard(CARD_2_TEXT, "1/1/2095", boardId1);
+        Long boardId2 = 2L;
+        insertCardIntoBoard(boardId2, CARD_3_TEXT);
+        insertCardIntoBoard(boardId2, CARD_4_TEXT);
+        HttpResponse httpResponse = callCardService(boardId1);
+        assertStatusCodeIs200(httpResponse);
+        JsonNode actualJsonResults = getJsonResults(httpResponse);
+        ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
+        JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
+
         return Result.healthy();
+    }
+
+    private JsonNode getJsonResults(HttpResponse httpResponse) throws IOException {
+        String result = getStringFromHttpResponse(httpResponse);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readTree( result );
+    }
+
+    private String getStringFromHttpResponse(HttpResponse httpResponse) throws IOException {
+        InputStream inputStream = httpResponse.getEntity().getContent();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        return bufferedReader.readLine();
+    }
+
+
+    private ArrayNode createdExpectedJson(Card card1, Card card2) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ArrayNode expectedCardArrayJson = new ArrayNode(factory);
+        // Do card2 first, since it will be sorted as first item
+        ObjectNode row = createObjectNodeFromCard(card2, factory);
+        expectedCardArrayJson.add(row);
+        row = createObjectNodeFromCard(card1, factory);
+        expectedCardArrayJson.add(row);
+        return expectedCardArrayJson;
+    }
+
+    private ObjectNode createObjectNodeFromCard(Card card, JsonNodeFactory factory) {
+        ObjectNode row = new ObjectNode(factory);
+        Long cardIdLong = card.getId();
+        row.put("id", cardIdLong.intValue() );
+        row.put("cardText", card.getCardText() );
+        row.put("postponedDate", card.getPostponedDate() );
+        return row;
+    }
+
+
+
+    private void assertStatusCodeIs200(HttpResponse httpResponse) {
+        StatusLine statusLine = httpResponse.getStatusLine();
+        int statusCode = statusLine.getStatusCode();
+        assertThat(statusCode).isEqualTo(200);
+    }
+
+
+
+    //            String uri = "http://localhost:9595/cards/board/" + boardId + "?postponed=true";
+    private HttpResponse callCardService(Long boardId1) throws IOException, ConfigurationException {
+        int port  = cardServiceConfiguration.getHttpConfiguration().getPort();
+        HttpClient httpclient = new DefaultHttpClient();
+        String uri = "http://localhost:" + port + "/cards/board/" + boardId1;
+        HttpGet httpget = new HttpGet(uri);
+        return httpclient.execute(httpget);
+    }
+
+
+    private Long insertCardIntoBoard(Long boardId, String cardText) {
+        long cardLocation = 1;
+        Long cardId = getNextCardIdFromSequence();
+
+        databaseHandle.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId, cardText, cardLocation, boardId);
+
+        return cardId;
     }
 
 

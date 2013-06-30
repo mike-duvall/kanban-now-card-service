@@ -32,7 +32,9 @@ public class CardService extends Service<CardServiceConfiguration> {
         final DBI jdbi = factory.build(environment, configuration.getDatabase(), "oracle");
         final CardDAO cardDAO = jdbi.onDemand(CardDAO.class);
         environment.addResource(new CardResource( cardDAO ));
-        environment.addHealthCheck(new CardServiceHealthCheck(environment, configuration.getDatabase()));
+        environment.addHealthCheck(new CardServiceHealthCheck(environment, configuration));
+
+        // Oops, need to pull my graphite key out and put it in config......
         GraphiteReporter.enable(15, TimeUnit.SECONDS, "carbon.hostedgraphite.com", 2003, "0cb986a9-f3e9-4292-8d08-0d3a759e448f");
     }
 
