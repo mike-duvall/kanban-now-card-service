@@ -6,6 +6,7 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 
+import java.sql.Date;
 import java.util.List;
 
 public interface CardDAO {
@@ -18,4 +19,12 @@ public interface CardDAO {
 
     @SqlUpdate( "delete from card where text = :text")
     void deleteCardWithText(@Bind("text") String text);
+
+    @SqlUpdate("insert into card (board_id, id, text, location, postponed_date) values (:boardId, :cardId, :cardText, :cardLocation, :postponedDate)")
+    void insertCard(
+            @Bind("boardId") Long boardId,
+            @Bind("cardId") Long cardId,
+            @Bind("cardText") String cardText,
+            @Bind("cardLocation") Long cardLocation,
+            @Bind("postponedDate") Date postponedDate);
 }

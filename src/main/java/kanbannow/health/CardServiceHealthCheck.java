@@ -161,9 +161,7 @@ public class CardServiceHealthCheck extends HealthCheck {
     private Long insertPostponedCardIntoBoard(Long boardId, Card aCard, Date postponedDate) {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
-
-        databaseHandle.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, aCard.getCardText(), cardLocation, boardId, postponedDate);
-
+        cardDao.insertCard(boardId, cardId, aCard.getCardText(), cardLocation, postponedDate );
         return cardId;
     }
 
