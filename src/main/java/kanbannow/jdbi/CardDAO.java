@@ -13,4 +13,8 @@ public interface CardDAO {
     @SqlQuery( "select id, text as \"cardText\", to_char( postponed_date, 'fmmm/dd/yyyy') as \"postponedDate\" from card where postponed_date is not null and board_id = :boardId  order by postponed_date")
     @Mapper(CardMapper.class)
     List<Card> getPostponedCardForBoard(@Bind("boardId") int boardId);
+
+
+//    @SqlUpdate( "delete from card where text = :text")
+//    void deleteCardWithText(@Bind("text") String text);
 }
