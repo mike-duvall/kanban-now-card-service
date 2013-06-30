@@ -41,9 +41,11 @@ public class CardServiceIntegrationTest {
 
     public static final String PROPERTIES_PATH = "../properties/";
     public static final String CARD_SERVICE_YML = "card-service.yml";
-    public static final String SINGLE_QUOTE = "'";
+    public static final String CARD_1_TEXT = "zzzTest card text1zzz";
+    public static final String CARD_2_TEXT = "zzzTest card text2zzz";
+    public static final String CARD_3_TEXT = "zzzTest card text3zzz";
+    public static final String CARD_4_TEXT = "zzzTest card text4zzz";
     private Handle h;
-    private BoardDAO boardDAO;
 
 
 
@@ -62,30 +64,29 @@ public class CardServiceIntegrationTest {
         CardServiceConfiguration cardServiceConfiguration = serviceRule.getConfiguration();
         DatabaseConfiguration databaseConfiguration = cardServiceConfiguration.getDatabase();
         final DBI dbi = factory.build(serviceRule.getEnvironment(), databaseConfiguration, "oracle");
-        boardDAO = dbi.onDemand(BoardDAO.class);
         cleanupDbData(dbi);
     }
 
 
     private void cleanupDbData(DBI dbi) {
         h = dbi.open();
-        h.execute("delete from card");
-        boardDAO.deleteAllBoards();
-        h.execute("delete from authorities");
-        h.execute("delete from user_feature_toggle");
+        h.execute("delete from card where text ='" + CARD_1_TEXT + "'");
+        h.execute("delete from card where text ='" + CARD_2_TEXT + "'");
+        h.execute("delete from card where text ='" + CARD_3_TEXT + "'");
+        h.execute("delete from card where text ='" + CARD_4_TEXT + "'");
     }
 
 
     // CHECKSTYLE:OFF
     @Test
     public void shouldReturnOnlyPostponedCardsFromCorrectBoardSortedByPostponedDate() throws Exception {
-        Long userId = queryTestUserId();
-        Long boardId1 = createBoard(userId, "Test board1");
-        Card card1 = createAndInsertCard("Test card text1","2/2/2101", boardId1);
-        Card card2 = createAndInsertCard("Test card text2","1/1/2095", boardId1);
-        Long boardId2 = createBoard(userId, "Test board2");
-        insertCardIntoBoard(boardId2, "Test card text3");
-        insertCardIntoBoard(boardId2, "Test card text4");
+        Long boardId1 = 1L;
+        Card card1 = createAndInsertCard(CARD_1_TEXT,"2/2/2101", boardId1);
+        Card card2 = createAndInsertCard(CARD_2_TEXT,"1/1/2095", boardId1);
+
+        Long boardId2 = 2L;
+        insertCardIntoBoard(boardId2, CARD_3_TEXT);
+        insertCardIntoBoard(boardId2, CARD_4_TEXT);
         HttpResponse httpResponse = callCardService(boardId1);
         assertStatusCodeIs200(httpResponse);
         JsonNode actualJsonResults = getJsonResults(httpResponse);
@@ -156,13 +157,6 @@ public class CardServiceIntegrationTest {
     }
 
 
-    private Long createBoard(Long userId, String boardName) {
-        boardDAO.createBoard( boardName, userId);
-        return boardDAO.findBoardWithName(boardName);
-    }
-
-
-
     private Long insertCardIntoBoard(Long boardId, String cardText) {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
@@ -185,14 +179,6 @@ public class CardServiceIntegrationTest {
         h.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, aCard.getCardText(), cardLocation, boardId, postponedDate);
 
         return cardId;
-    }
-
-
-    private Long queryTestUserId() {
-        return h.createQuery("select id from users where username = 'CardServiceTestUser1' ")
-                .map(LongMapper.FIRST)
-                .first();
-
     }
 
 
