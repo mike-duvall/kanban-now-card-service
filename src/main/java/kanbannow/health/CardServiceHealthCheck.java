@@ -10,6 +10,7 @@ import com.yammer.dropwizard.config.Environment;
 import com.yammer.metrics.core.HealthCheck;
 import kanbannow.CardServiceConfiguration;
 import kanbannow.core.Card;
+import kanbannow.jdbi.CardDAO;
 import net.sf.json.test.JSONAssert;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -36,8 +37,8 @@ public class CardServiceHealthCheck extends HealthCheck {
 
 
     private CardServiceConfiguration cardServiceConfiguration;
-//    private Environment environment;
     private Handle databaseHandle;
+    private DBI dbi;
 
 
     public static final String CARD_1_TEXT = "zzzTest card text1zzz";
@@ -47,21 +48,19 @@ public class CardServiceHealthCheck extends HealthCheck {
 
 
 
-    public CardServiceHealthCheck(Environment anEnvironment, CardServiceConfiguration aCardServiceConfiguration, DBI aDBI) {
+    public CardServiceHealthCheck(CardServiceConfiguration aCardServiceConfiguration, DBI aDBI) {
         super("cardService");
-//        this.environment = anEnvironment;
         this.cardServiceConfiguration = aCardServiceConfiguration;
-        this.databaseHandle = aDBI.open();
+        this.dbi = aDBI;
     }
 
     // CHECKSTYLE:OFF
     @Override
     protected Result check() throws Exception {
 
-//        final DBIFactory factory = new DBIFactory();
-//        final DBI dbi = factory.build(environment, cardServiceConfiguration.getDatabase(), "oracle");
         try{
-//            databaseHandle = dbi.open();
+            this.databaseHandle = dbi.open();
+
             cleanupDbData();
             Long boardId1 = 1L;
             Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
@@ -178,6 +177,7 @@ public class CardServiceHealthCheck extends HealthCheck {
 
     // CHECKSTYLE:OFF
     private void cleanupDbData() {
+
 
         databaseHandle.execute("delete from card where text ='" + CARD_1_TEXT + "'");
         databaseHandle.execute("delete from card where text ='" + CARD_2_TEXT + "'");
