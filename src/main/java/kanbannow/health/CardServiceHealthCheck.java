@@ -57,22 +57,29 @@ public class CardServiceHealthCheck extends HealthCheck {
     // CHECKSTYLE:OFF
     @Override
     protected Result check() throws Exception {
+
         final DBIFactory factory = new DBIFactory();
         final DBI dbi = factory.build(environment, cardServiceConfiguration.getDatabase(), "oracle");
-        databaseHandle = dbi.open();
-        cleanupDbData(dbi);
-        Long boardId1 = 1L;
-        Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
-        Card card2 = createAndInsertPostponedCard(CARD_2_TEXT, "1/1/2095", boardId1);
-        Long boardId2 = 2L;
-        insertCardIntoBoard(boardId2, CARD_3_TEXT);
-        insertCardIntoBoard(boardId2, CARD_4_TEXT);
-        HttpResponse httpResponse = callCardService(boardId1);
-        assertStatusCodeIs200(httpResponse);
-        JsonNode actualJsonResults = getJsonResults(httpResponse);
-        ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
-        JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
-        return Result.healthy();
+        try{
+            databaseHandle = dbi.open();
+            cleanupDbData(dbi);
+            Long boardId1 = 1L;
+            Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
+            Card card2 = createAndInsertPostponedCard(CARD_2_TEXT, "1/1/2095", boardId1);
+            Long boardId2 = 2L;
+            insertCardIntoBoard(boardId2, CARD_3_TEXT);
+            insertCardIntoBoard(boardId2, CARD_4_TEXT);
+            HttpResponse httpResponse = callCardService(boardId1);
+            assertStatusCodeIs200(httpResponse);
+            JsonNode actualJsonResults = getJsonResults(httpResponse);
+            ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
+            JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
+            return Result.healthy();
+        }
+        finally {
+            // This is hacky.  Need to switch to using a DAO
+            dbi.close(databaseHandle);
+        }
     }
     // CHECKSTYLE:ON
 
