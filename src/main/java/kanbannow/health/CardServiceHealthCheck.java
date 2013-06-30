@@ -78,7 +78,7 @@ public class CardServiceHealthCheck extends HealthCheck {
         }
         finally {
             // This is hacky.  Need to switch to using a DAO
-            dbi.close(databaseHandle);
+            databaseHandle.close();
         }
     }
     // CHECKSTYLE:ON
