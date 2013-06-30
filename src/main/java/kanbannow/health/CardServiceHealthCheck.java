@@ -175,20 +175,13 @@ public class CardServiceHealthCheck extends HealthCheck {
     }
 
 
-    // CHECKSTYLE:OFF
+
     private void cleanupDbData() {
-
-
         cardDao.deleteCardWithText(CARD_1_TEXT);
         cardDao.deleteCardWithText(CARD_2_TEXT);
         cardDao.deleteCardWithText(CARD_3_TEXT);
         cardDao.deleteCardWithText(CARD_4_TEXT);
-//        databaseHandle.execute("delete from card where text ='" + CARD_1_TEXT + "'");
-//        databaseHandle.execute("delete from card where text ='" + CARD_2_TEXT + "'");
-//        databaseHandle.execute("delete from card where text ='" + CARD_3_TEXT + "'");
-//        databaseHandle.execute("delete from card where text ='" + CARD_4_TEXT + "'");
     }
-    // CHECKSTYLE:ON
 
 
 }

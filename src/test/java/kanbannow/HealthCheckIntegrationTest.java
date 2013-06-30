@@ -35,6 +35,10 @@ public class HealthCheckIntegrationTest {
     public void healthCheckShouldReturnHealthy() throws IOException, ConfigurationException {
         String uri = getHealthCheckURL();
         HttpResponse httpResponse = callHealthCheck(uri);
+        validateResponseFromHealthCheck(httpResponse);
+    }
+
+    private void validateResponseFromHealthCheck(HttpResponse httpResponse) throws IOException {
         StatusLine statusLine = httpResponse.getStatusLine();
         int statusCode = statusLine.getStatusCode();
         if( statusCode != 200) {
