@@ -44,7 +44,7 @@ public class CardServiceIntegrationTest {
     public static final String CARD_2_TEXT = "zzzTest card text2zzz";
     public static final String CARD_3_TEXT = "zzzTest card text3zzz";
     public static final String CARD_4_TEXT = "zzzTest card text4zzz";
-    private Handle h;
+    private Handle databaseHandle;
 
 
 
@@ -68,11 +68,11 @@ public class CardServiceIntegrationTest {
 
     // CHECKSTYLE:OFF
     private void cleanupDbData(DBI dbi) {
-        h = dbi.open();
-        h.execute("delete from card where text ='" + CARD_1_TEXT + "'");
-        h.execute("delete from card where text ='" + CARD_2_TEXT + "'");
-        h.execute("delete from card where text ='" + CARD_3_TEXT + "'");
-        h.execute("delete from card where text ='" + CARD_4_TEXT + "'");
+        databaseHandle = dbi.open();
+        databaseHandle.execute("delete from card where text ='" + CARD_1_TEXT + "'");
+        databaseHandle.execute("delete from card where text ='" + CARD_2_TEXT + "'");
+        databaseHandle.execute("delete from card where text ='" + CARD_3_TEXT + "'");
+        databaseHandle.execute("delete from card where text ='" + CARD_4_TEXT + "'");
     }
     // CHECKSTYLE:ON
 
@@ -81,8 +81,8 @@ public class CardServiceIntegrationTest {
     @Test
     public void shouldReturnOnlyPostponedCardsFromCorrectBoardSortedByPostponedDate() throws Exception {
         Long boardId1 = 1L;
-        Card card1 = createAndInsertCard(CARD_1_TEXT,"2/2/2101", boardId1);
-        Card card2 = createAndInsertCard(CARD_2_TEXT,"1/1/2095", boardId1);
+        Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
+        Card card2 = createAndInsertPostponedCard(CARD_2_TEXT, "1/1/2095", boardId1);
 
         Long boardId2 = 2L;
         insertCardIntoBoard(boardId2, CARD_3_TEXT);
@@ -112,7 +112,7 @@ public class CardServiceIntegrationTest {
         return expectedCardArrayJson;
     }
 
-    private Card createAndInsertCard(String text, String postponedDate, Long boardId) {
+    private Card createAndInsertPostponedCard(String text, String postponedDate, Long boardId) {
         Card card1 = new Card();
         card1.setCardText(text);
         card1.setPostponedDate(postponedDate);
@@ -161,13 +161,13 @@ public class CardServiceIntegrationTest {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
 
-        h.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId, cardText, cardLocation, boardId);
+        databaseHandle.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId, cardText, cardLocation, boardId);
 
         return cardId;
     }
 
     private Long getNextCardIdFromSequence() {
-        return h.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
+        return databaseHandle.createQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
                     .map(LongMapper.FIRST)
                     .first();
     }
@@ -176,7 +176,7 @@ public class CardServiceIntegrationTest {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
 
-        h.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, aCard.getCardText(), cardLocation, boardId, postponedDate);
+        databaseHandle.execute("insert into card (id, text, location, board_id, postponed_date) values (?, ?, ?, ?, ?)", cardId, aCard.getCardText(), cardLocation, boardId, postponedDate);
 
         return cardId;
     }

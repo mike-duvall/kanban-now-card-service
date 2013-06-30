@@ -3,7 +3,7 @@ package kanbannow;
 import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.dropwizard.jdbi.bundles.DBIExceptionsBundle;
 import com.yammer.metrics.reporting.GraphiteReporter;
-import kanbannow.health.DatabaseHealthCheck;
+import kanbannow.health.CardServiceHealthCheck;
 import kanbannow.jdbi.CardDAO;
 import kanbannow.resources.CardResource;
 
@@ -32,7 +32,7 @@ public class CardService extends Service<CardServiceConfiguration> {
         final DBI jdbi = factory.build(environment, configuration.getDatabase(), "oracle");
         final CardDAO cardDAO = jdbi.onDemand(CardDAO.class);
         environment.addResource(new CardResource( cardDAO ));
-        environment.addHealthCheck(new DatabaseHealthCheck(configuration.getDatabase()));
+        environment.addHealthCheck(new CardServiceHealthCheck(environment, configuration.getDatabase()));
         GraphiteReporter.enable(15, TimeUnit.SECONDS, "carbon.hostedgraphite.com", 2003, "0cb986a9-f3e9-4292-8d08-0d3a759e448f");
     }
 
