@@ -21,10 +21,20 @@ public interface CardDAO {
     void deleteCardWithText(@Bind("text") String text);
 
     @SqlUpdate("insert into card (board_id, id, text, location, postponed_date) values (:boardId, :cardId, :cardText, :cardLocation, :postponedDate)")
-    void insertCard(
+    void insertCardWithPostponedDate(
             @Bind("boardId") Long boardId,
             @Bind("cardId") Long cardId,
             @Bind("cardText") String cardText,
             @Bind("cardLocation") Long cardLocation,
             @Bind("postponedDate") Date postponedDate);
+
+
+    // You'd think you could just pass null for postponed date, but I get an error
+    @SqlUpdate("insert into card (board_id, id, text, location) values (:boardId, :cardId, :cardText, :cardLocation)")
+    void insertCardWithoutPostponedDate(
+            @Bind("boardId") Long boardId,
+            @Bind("cardId") Long cardId,
+            @Bind("cardText") String cardText,
+            @Bind("cardLocation") Long cardLocation);
+
 }

@@ -140,7 +140,9 @@ public class CardServiceHealthCheck extends HealthCheck {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
 
-        databaseHandle.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId, cardText, cardLocation, boardId);
+        cardDao.insertCardWithoutPostponedDate(boardId, cardId, cardText, cardLocation );
+
+//        databaseHandle.execute("insert into card (id, text, location, board_id) values (?, ?, ?, ?)", cardId, cardText, cardLocation, boardId);
 
         return cardId;
     }
@@ -161,7 +163,7 @@ public class CardServiceHealthCheck extends HealthCheck {
     private Long insertPostponedCardIntoBoard(Long boardId, Card aCard, Date postponedDate) {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
-        cardDao.insertCard(boardId, cardId, aCard.getCardText(), cardLocation, postponedDate );
+        cardDao.insertCardWithPostponedDate(boardId, cardId, aCard.getCardText(), cardLocation, postponedDate);
         return cardId;
     }
 
