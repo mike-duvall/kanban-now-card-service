@@ -35,6 +35,8 @@ public class CardServiceHealthCheck extends HealthCheck {
     public static final String CARD_2_TEXT = "zzzTest card text2zzz";
     public static final String CARD_3_TEXT = "zzzTest card text3zzz";
     public static final String CARD_4_TEXT = "zzzTest card text4zzz";
+    public static final String CARD_5_TEXT = "zzzTest card text5zzz";
+    public static final String CARD_6_TEXT = "zzzTest card text6zzz";
 
     private CardServiceConfiguration cardServiceConfiguration;
     private CardDAO cardDao;
@@ -49,14 +51,24 @@ public class CardServiceHealthCheck extends HealthCheck {
     // CHECKSTYLE:OFF
     @Override
     protected Result check() throws Exception {
+
+        // Given
         cleanupDbData();
         Long boardId1 = 1L;
-        Card card1 = createAndInsertPostponedCard(CARD_1_TEXT, "2/2/2101", boardId1);
-        Card card2 = createAndInsertPostponedCard(CARD_2_TEXT, "1/1/2095", boardId1);
+        Card card1 = createAndInsertPostponedCard(boardId1, CARD_1_TEXT, "2/2/2101");
+        Card card2 = createAndInsertPostponedCard(boardId1, CARD_2_TEXT, "1/1/2095");
+        insertNonPostponedCardIntoBoard(boardId1, CARD_5_TEXT);
         Long boardId2 = 2L;
-        insertCardIntoBoard(boardId2, CARD_3_TEXT);
-        insertCardIntoBoard(boardId2, CARD_4_TEXT);
+        insertNonPostponedCardIntoBoard(boardId2, CARD_3_TEXT);
+        insertNonPostponedCardIntoBoard(boardId2, CARD_4_TEXT);
+        createAndInsertPostponedCard(boardId2, CARD_6_TEXT, "1/1/2095");
+
+
+        // When
         HttpResponse httpResponse = callCardService(boardId1);
+
+
+        // Then
         assertStatusCodeIs200(httpResponse);
         JsonNode actualJsonResults = getJsonResults(httpResponse);
         ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
@@ -119,7 +131,7 @@ public class CardServiceHealthCheck extends HealthCheck {
     }
 
 
-    private Long insertCardIntoBoard(Long boardId, String cardText) {
+    private Long insertNonPostponedCardIntoBoard(Long boardId, String cardText) {
         long cardLocation = 1;
         Long cardId = getNextCardIdFromSequence();
         cardDao.insertCardWithoutPostponedDate(boardId, cardId, cardText, cardLocation);
@@ -127,7 +139,7 @@ public class CardServiceHealthCheck extends HealthCheck {
     }
 
 
-    private Card createAndInsertPostponedCard(String text, String postponedDate, Long boardId) {
+    private Card createAndInsertPostponedCard(Long boardId, String text, String postponedDate) {
         Card card1 = new Card();
         card1.setCardText(text);
         card1.setPostponedDate(postponedDate);
@@ -158,6 +170,8 @@ public class CardServiceHealthCheck extends HealthCheck {
         cardDao.deleteCardWithText(CARD_2_TEXT);
         cardDao.deleteCardWithText(CARD_3_TEXT);
         cardDao.deleteCardWithText(CARD_4_TEXT);
+        cardDao.deleteCardWithText(CARD_5_TEXT);
+        cardDao.deleteCardWithText(CARD_6_TEXT);
     }
 
 
