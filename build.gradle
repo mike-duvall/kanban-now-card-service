@@ -86,6 +86,8 @@ ant.importBuild 'build.xml'
 
 apply plugin: 'checkstyle'
 
+checkstyleMain.exclude '**/CardServicePostponeCardHealthCheck.java'
+
 task checkstyleReport << {
     if (file("$buildDir/reports/checkstyle/${checkType}.xml").exists()) {
         ant.xslt(in: "$buildDir/reports/checkstyle/${checkType}.xml",
