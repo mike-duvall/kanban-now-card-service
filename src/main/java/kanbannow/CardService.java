@@ -34,7 +34,7 @@ public class CardService extends Service<CardServiceConfiguration> {
         final CardDAO cardDAO = jdbi.onDemand(CardDAO.class);
         environment.addResource(new CardResource( cardDAO ));
         environment.addHealthCheck(new CardServiceHealthCheck(configuration, cardDAO));
-        environment.addHealthCheck(new CardServicePostponeCardHealthCheck(configuration, cardDAO));
+//        environment.addHealthCheck(new CardServicePostponeCardHealthCheck(configuration, cardDAO));
         // Oops, need to pull my graphite key out and put it in config......
         GraphiteReporter.enable(15, TimeUnit.SECONDS, "carbon.hostedgraphite.com", 2003, "0cb986a9-f3e9-4292-8d08-0d3a759e448f");
     }
