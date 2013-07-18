@@ -4,7 +4,7 @@ import com.yammer.dropwizard.jdbi.DBIFactory;
 import com.yammer.dropwizard.jdbi.bundles.DBIExceptionsBundle;
 import com.yammer.metrics.reporting.GraphiteReporter;
 import kanbannow.health.CardServiceHealthCheck;
-import kanbannow.health.CardServicePostponeCardHealthCheck;
+//import kanbannow.health.CardServicePostponeCardHealthCheck;
 import kanbannow.jdbi.CardDAO;
 import kanbannow.resources.CardResource;
 
