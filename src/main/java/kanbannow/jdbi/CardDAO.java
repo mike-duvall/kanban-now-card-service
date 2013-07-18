@@ -40,4 +40,7 @@ public interface CardDAO {
 
     @SqlQuery("select CARD_SURROGATE_KEY_SEQUENCE.nextval from dual")
     Long getNextCardIdFromSequence();
+
+@SqlUpdate("update card set postponed_date = TO_DATE(:postponedDate, 'MM/DD/YYYY') where id = :cardId")
+    void setPostponedDate(@Bind("cardId") long cardId, @Bind("postponedDate") String postponedDate);
 }

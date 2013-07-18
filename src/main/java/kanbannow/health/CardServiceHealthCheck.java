@@ -73,6 +73,9 @@ public class CardServiceHealthCheck extends HealthCheck {
         JsonNode actualJsonResults = getJsonResults(httpResponse);
         ArrayNode expectedJsonResults = createdExpectedJson(card1, card2);
         JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
+
+        // HACK
+        cleanupDbData();
         return Result.healthy();
     }
     // CHECKSTYLE:ON

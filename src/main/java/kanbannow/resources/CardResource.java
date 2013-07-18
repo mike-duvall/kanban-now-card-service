@@ -6,6 +6,7 @@ import kanbannow.jdbi.CardDAO;
 
 
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -13,7 +14,8 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
 
-@Path("/cards/board")
+
+@Path("/cards/")
 @Produces(MediaType.APPLICATION_JSON)
 public class CardResource {
     private CardDAO cardDAO;
@@ -25,10 +27,19 @@ public class CardResource {
 
     @GET
     @Timed
-    @Path("{id}")
+    @Path("board/{id}")
     public List<Card> getCards(@PathParam("id") int boardId) throws IOException, ClassNotFoundException {
         List<Card> cardList = cardDAO.getPostponedCardForBoard(boardId);
         return cardList;
     }
+
+
+    @PUT
+    @Timed
+    @Path("{cardId}/postponement")
+    public void postponeCard(String postponedDate, @PathParam("cardId") long cardId ) {
+        cardDAO.setPostponedDate( cardId, postponedDate);
+    }
+
 
 }

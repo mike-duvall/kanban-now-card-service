@@ -18,15 +18,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -34,11 +30,6 @@ import static org.fest.assertions.Assertions.assertThat;
 public class CardServicePostponeCardHealthCheck extends HealthCheck {
 
     public static final String CARD_1_TEXT = "zzzTest card text1zzz";
-    public static final String CARD_2_TEXT = "zzzTest card text2zzz";
-    public static final String CARD_3_TEXT = "zzzTest card text3zzz";
-    public static final String CARD_4_TEXT = "zzzTest card text4zzz";
-    public static final String CARD_5_TEXT = "zzzTest card text5zzz";
-    public static final String CARD_6_TEXT = "zzzTest card text6zzz";
 
     private CardServiceConfiguration cardServiceConfiguration;
     private CardDAO cardDao;
@@ -57,21 +48,37 @@ public class CardServicePostponeCardHealthCheck extends HealthCheck {
         // Given
         cleanupDbData();
         Long boardId1 = 1L;
-        Card card3 = createAndInsertNonPostponedCardIntoBoard( boardId1, CARD_5_TEXT);
-        insertNonPostponedCardIntoBoard(boardId1, CARD_3_TEXT);
+        Card card3 = createAndInsertNonPostponedCardIntoBoard( boardId1, CARD_1_TEXT);
 
-        // When
+//        really need to clean all this up:
+//        * Remove duplication
+//        * handle cleanup of data after tests, so health checks don't conflict
+//        * Fix having to manually set card3 postponed date below
+
+         // When
         HttpResponse httpResponse = callCardServiceToPostponeCard( card3.getId(), "1/1/2095");
 
 
         // Then
+        httpResponse = callCardService(boardId1);
+
         assertStatusCodeIs200(httpResponse);
         JsonNode actualJsonResults = getJsonResults(httpResponse);
+        card3.setPostponedDate("1/1/2095");
+
         ArrayNode expectedJsonResults = createdExpectedJson(card3);
         JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
         return Result.healthy();
     }
     // CHECKSTYLE:ON
+
+    private HttpResponse callCardService(Long boardId1) throws IOException, ConfigurationException {
+        int port  = cardServiceConfiguration.getHttpConfiguration().getPort();
+        HttpClient httpclient = new DefaultHttpClient();
+        String uri = "http://localhost:" + port + "/cards/board/" + boardId1;
+        HttpGet httpget = new HttpGet(uri);
+        return httpclient.execute(httpget);
+    }
 
     private JsonNode getJsonResults(HttpResponse httpResponse) throws IOException {
         String result = getStringFromHttpResponse(httpResponse);
@@ -112,28 +119,11 @@ public class CardServicePostponeCardHealthCheck extends HealthCheck {
         assertThat(statusCode).isEqualTo(200);
     }
 
-
-
-
-//    To postpone or update postponedDate
-//    Put
-//    /cards/board/1/card/1/postponement
-//    { postponedDate: 'xxxDateHere'}
-//
-//
-//    To remove postponement
-//    Delete
-//    /cards/board/card/postponement
-
-
-//    /cards/234/postponement
-
-
-//    /cards/board/1/cards
-
-
-
-
+    private void assertStatusCodeIs204(HttpResponse httpResponse) {
+        StatusLine statusLine = httpResponse.getStatusLine();
+        int statusCode = statusLine.getStatusCode();
+        assertThat(statusCode).isEqualTo(204);
+    }
 
     private HttpResponse callCardServiceToPostponeCard(long cardId, String postponementDate) throws IOException, ConfigurationException {
         int port  = cardServiceConfiguration.getHttpConfiguration().getPort();
@@ -163,39 +153,13 @@ public class CardServicePostponeCardHealthCheck extends HealthCheck {
     }
 
 
-    private Card createAndInsertPostponedCard(Long boardId, String text, String postponedDate) {
-        Card card1 = new Card();
-        card1.setCardText(text);
-        card1.setPostponedDate(postponedDate);
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("MM/dd/yyyy");
-        DateTime postponedDate1 = formatter.parseDateTime(card1.getPostponedDate());
-        Long cardId1 = insertPostponedCardIntoBoard(boardId, card1, new Date(postponedDate1.getMillis()));
-        card1.setId(cardId1);
-        return card1;
-    }
-
-
-    private Long insertPostponedCardIntoBoard(Long boardId, Card aCard, Date postponedDate) {
-        long cardLocation = 1;
-        Long cardId = getNextCardIdFromSequence();
-        cardDao.insertCardWithPostponedDate(boardId, cardId, aCard.getCardText(), cardLocation, postponedDate);
-        return cardId;
-    }
-
-
     private Long getNextCardIdFromSequence() {
         return cardDao.getNextCardIdFromSequence();
     }
 
 
-
     private void cleanupDbData() {
         cardDao.deleteCardWithText(CARD_1_TEXT);
-        cardDao.deleteCardWithText(CARD_2_TEXT);
-        cardDao.deleteCardWithText(CARD_3_TEXT);
-        cardDao.deleteCardWithText(CARD_4_TEXT);
-        cardDao.deleteCardWithText(CARD_5_TEXT);
-        cardDao.deleteCardWithText(CARD_6_TEXT);
     }
 
 
