@@ -15,9 +15,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,8 +49,10 @@ public class CardServicePostponeCardHealthCheck extends HealthCheck {
     @Override
     protected Result check() throws Exception {
 
-        // Given
         cleanupDbData();
+
+
+        // Given
         Long boardId1 = 1L;
         Card card3 = createAndInsertNonPostponedCardIntoBoard( boardId1, CARD_1_TEXT);
 
@@ -56,23 +62,46 @@ public class CardServicePostponeCardHealthCheck extends HealthCheck {
 //        * Fix having to manually set card3 postponed date below
 
          // When
-        HttpResponse httpResponse = callCardServiceToPostponeCard( card3.getId(), "1/1/2095");
+        Integer numDaysToPostpone = 7;
+        HttpResponse httpResponse = callCardServiceToPostponeCard( card3.getId(), numDaysToPostpone);
+        assertStatusCodeIs204(httpResponse);
+        Card returnedCard = parseCardFromResponse(httpResponse);
 
 
         // Then
-        httpResponse = callCardService(boardId1);
+        httpResponse = callCardServiceToGetPostponedCardsForBoard(boardId1);
 
         assertStatusCodeIs200(httpResponse);
         JsonNode actualJsonResults = getJsonResults(httpResponse);
-        card3.setPostponedDate("1/1/2095");
+        DateTime currentDateTime = new DateTime();
+        DateMidnight dateMidnight = currentDateTime.toDateMidnight();
+        DateTime postponedDateTime = dateMidnight.toDateTime().plusDays(numDaysToPostpone).plusSeconds(1);
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("M/d/yyyy");
+        String formattedDate = postponedDateTime.toString(fmt);
 
-        ArrayNode expectedJsonResults = createdExpectedJson(card3);
+
+        Card expectedCard = new Card();
+        expectedCard.setPostponedDate(formattedDate);
+        expectedCard.setId(card3.getId());
+        expectedCard.setCardText(CARD_1_TEXT);
+
+        ArrayNode expectedJsonResults = createdExpectedJson(expectedCard);
         JSONAssert.assertEquals(expectedJsonResults, actualJsonResults);
+
+        cleanupDbData();
+
+
         return Result.healthy();
     }
     // CHECKSTYLE:ON
 
-    private HttpResponse callCardService(Long boardId1) throws IOException, ConfigurationException {
+
+    private Card parseCardFromResponse(HttpResponse anHttpResponse) {
+        return null;
+
+    }
+
+    private HttpResponse callCardServiceToGetPostponedCardsForBoard(Long boardId1) throws IOException, ConfigurationException {
         int port  = cardServiceConfiguration.getHttpConfiguration().getPort();
         HttpClient httpclient = new DefaultHttpClient();
         String uri = "http://localhost:" + port + "/cards/board/" + boardId1;
@@ -125,14 +154,14 @@ public class CardServicePostponeCardHealthCheck extends HealthCheck {
         assertThat(statusCode).isEqualTo(204);
     }
 
-    private HttpResponse callCardServiceToPostponeCard(long cardId, String postponementDate) throws IOException, ConfigurationException {
+    private HttpResponse callCardServiceToPostponeCard(long cardId, Integer numDaysToPostpone) throws IOException, ConfigurationException {
         int port  = cardServiceConfiguration.getHttpConfiguration().getPort();
         HttpClient httpclient = new DefaultHttpClient();
-        String uri = "http://localhost:" + port + "/cards/" + cardId + "/postponement";
-        HttpPut httpPut = new HttpPut(uri);
-        StringEntity stringEntity = new StringEntity(postponementDate);
-        httpPut.setEntity(stringEntity);
-        return httpclient.execute(httpPut);
+        String uri = "http://localhost:" + port + "/cards/" + cardId + "/postpone";
+        HttpPost httpPost = new HttpPost(uri);
+        StringEntity stringEntity = new StringEntity(numDaysToPostpone.toString());
+        httpPost.setEntity(stringEntity);
+        return httpclient.execute(httpPost);
     }
 
     private Card createAndInsertNonPostponedCardIntoBoard(Long boardId, String cardText) {
