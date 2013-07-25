@@ -30,14 +30,23 @@ java -jar build/libs/kanban-now-card-service.jar server {properties file}
 
 
 
-Rest(like) Interface:
+Rest(like*) Interface:
 
     * To retrieve a list of postponed cards for a specific board
 
         GET /cards/board/{boardId}
 
+    * To postpone a card
 
-Coming next:  The ability to postpone a specific card
+        POST /cards/{cardId}/postpone
+
+        pass number of days to postpone in the body
+
+
+Coming next:
+
+    * The ability to get all cards for a board (not just postponed one)
+    * The ability to add cards to a board
 
 
 
