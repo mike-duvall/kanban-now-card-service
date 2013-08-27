@@ -22,7 +22,7 @@ public class HealthCheckIntegrationTest {
 
     // This test requires the existence of a property file at: ../properties/card-service.yml
     public static final String CARD_SERVICE_YML = "card-service.yml";
-    public static final String PROPERTIES_PATH = "../properties/";
+    public static final String PROPERTIES_PATH = "../dev-services-config/card-service/";
 
     private DropwizardServiceRule<CardServiceConfiguration> serviceRule = new DropwizardServiceRule<CardServiceConfiguration>(CardService.class, PROPERTIES_PATH + CARD_SERVICE_YML);
 
