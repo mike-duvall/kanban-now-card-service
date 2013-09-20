@@ -11,6 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,6 +20,7 @@ import java.io.InputStreamReader;
 
 
 public class HealthCheckIntegrationTest {
+
 
     // This test requires the existence of a property file at: ../properties/card-service.yml
     public static final String CARD_SERVICE_YML = "card-service.yml";
