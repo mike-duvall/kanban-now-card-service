@@ -1,0 +1,32 @@
+    Consider this structure
+
+    dev-services-config/card-service/card-service.yml
+    dev-services-config/backlog-item-service/backlog-item-service.yml
+
+    qa-services-config/card-service/card-service.yml
+    qa-services-config/backlog-item-service/backlog-item-service.yml
+
+    link
+    services-config to either dev-services-config or qa-services-config or even prod-services-config
+
+
+
+    Top level structure
+
+
+
+    services-config/card-service/card-service.yml
+    services-config/backlog-item-service/backlog-item-service.yml
+
+    card-service
+    card-service/build.xml
+
+        references config via: "../services-config"
+
+    Convention is:  services-config directory expected to be at same level as service directory
+
+
+    When developing, link to dev-services-config on local box
+
+    When running in go, pull the proper environment outright to services-config (i.e., don't pull all and link to proper one.  Just pull proper one)
+
