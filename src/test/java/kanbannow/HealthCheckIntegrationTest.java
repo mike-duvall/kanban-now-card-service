@@ -35,10 +35,10 @@ public class HealthCheckIntegrationTest {
 
     @Test
     public void healthCheckShouldReturnHealthy() throws IOException, ConfigurationException {
-
         String uri = getHealthCheckURL();
         HttpResponse httpResponse = callHealthCheck(uri);
         validateResponseFromHealthCheck(httpResponse);
+
     }
 
     private void validateResponseFromHealthCheck(HttpResponse httpResponse) throws IOException {
