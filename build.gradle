@@ -1,14 +1,13 @@
 buildscript {
-    repositories {
-        maven {
-            name 'Gradle Shadow'
-            url 'http://dl.bintray.com/content/johnrengelman/gradle-plugins'
-        }
+ repositories {
+        jcenter()
     }
     dependencies {
-        classpath 'org.gradle.plugins:shadow:0.7.4'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
     }
+ 
 }
+
 
 apply plugin: 'shadow'
 
@@ -18,7 +17,7 @@ shadow {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
 
-    transformer (org.gradle.api.plugins.shadow.transformers.ServiceFileTransformer.class) {
+    transformer (com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer.class) {
 
     }
 
@@ -28,7 +27,9 @@ shadow {
 }
 
 
-task shadowBuild(dependsOn: ["shadow", "check"]) << {
+
+
+task shadowBuild(dependsOn: ["shadowJar", "check"]) << {
 
 }
 
@@ -119,5 +120,5 @@ gradle.taskGraph.afterTask {Task task, TaskState state ->
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.7'
+    gradleVersion = '1.12'
 }
