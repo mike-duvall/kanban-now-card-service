@@ -123,5 +123,5 @@ gradle.taskGraph.afterTask {Task task, TaskState state ->
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
+    gradleVersion = '1.11'
 }
